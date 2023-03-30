@@ -1,6 +1,6 @@
 Вариант.
 * asm
-* cisc
+* cisc isa
 * harvard architecture
 * организация памяти hardwired
 * тактовая точность
