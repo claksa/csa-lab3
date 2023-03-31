@@ -1,8 +1,8 @@
-db 1 ;first number
-db 2 ;second number
+db 1
+db 2
 db 4000000
-db 2 ;summary of even
-db 2 ;const
+db 2
+db 2
 loop:
     ld acc 0
     ld r7 1
