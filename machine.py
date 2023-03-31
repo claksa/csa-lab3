@@ -601,9 +601,13 @@ class ControlUnit:
         self.reset_step()
 
 
-def simulation(code_stream, limit=1000):
+def simulation(code_stream, input_file, limit=1000):
     control_unit = ControlUnit(code_stream)
-    control_unit.run()
+
+    with open(input_file, 'r') as input_file:
+        for line in input_file.readlines():
+            control_unit.data_path.input.append(int(line, 0))
+
     try:
         while True:
             control_unit.run()
@@ -615,11 +619,12 @@ def simulation(code_stream, limit=1000):
 
 def main(code_file, res_file, input_file):
     code_stream = read_code(code_file)
-    output = simulation(code_stream, limit=1000)
-    print(''.join(output))
+    output = simulation(code_stream, input_file, limit=1000)
+    with open(res_file, 'w') as file:
+        file.write(''.join(output))
 
 
 if __name__ == '__main__':
     code = "build/output.txt"
-    result = "cpu.txt"
+    result = "build/cpu.txt"
     main(code, result, input_file="build/input.txt")
