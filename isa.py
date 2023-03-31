@@ -13,9 +13,9 @@ class Opcode(str, Enum):
     MUL = 'mul'  # 1 arg +
     DIV = 'div'  # 1 arg +
     MOD = 'mod' # 1 arg +
-    JMP = 'jmp'  # 1 arg
+    JMP = 'jmp'  # 1 arg +
     SUB = 'sub'  # 1 arg +
-    JL = 'jl'  # 1 arg
+    JN = 'jn'  # 1 arg +
     HALT = 'halt'  # 0 +
 
 

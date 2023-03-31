@@ -3,7 +3,7 @@ from isa import Opcode, Operand, Term, write_code
 DATA_MEM_MAX_SIZE = 0xFFFF
 ADDR_MEM_MAX_SIZE = '0x7FF'
 
-instructions = {'mov', 'push', 'pop', 'call', 'ret', 'add', 'mul', 'div', 'mod', 'jmp', 'sub', 'jl', 'halt'}
+instructions = {'mov', 'push', 'pop', 'call', 'ret', 'add', 'mul', 'div', 'mod', 'jmp', 'sub', 'jn', 'halt'}
 
 
 def remove_comments(statement):
@@ -71,6 +71,7 @@ def translate(program):
 
     code = []
     labels = []
+    address = 0
     for line, statement in enumerate(statements, 1):
 
         struct = {"opcode": None, "address": None}
@@ -80,14 +81,14 @@ def translate(program):
             if ":" in statement[0]:
                 label["label"] = statement[0].strip().replace(':', '')
                 # TODO check: label address or next address (2nd option I suppose)
-                label["addr"] = decode_address(line)
+                label["addr"] = address
             else:
                 print("error: no such instruction", statement[0])
             labels.append(label)
             continue
         size = len(statement)
         struct["opcode"] = Opcode(statement[0])
-        struct["address"] = line-1
+        struct["address"] = address
         if size == 2:
             arg = statement[1]
             is_label = False
@@ -221,8 +222,14 @@ def translate(program):
 
             struct["source"] = op2
             struct["dest"] = op1
+        address += 1
         code.append(struct)
     for c in code:
+        if c['opcode'] is Opcode.JMP:
+            arg = c['op']['value']
+            for label in labels:
+                if arg == label["label"]:
+                    c['op'] = label['addr']
         print(c)
     return code
 

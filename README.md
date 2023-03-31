@@ -32,7 +32,7 @@
 | div   src       |                            divide acc by src: ratio --> acc, reminder --> dr                            |              dic dr |
 | jmp   label     |                       goto the instruction label: . skip anything else in the way                       |            jmp loop |
 | sub   dest, src |                                             dest = dest-src                                             |           sub ac, 4 |
-| jl    label     |                                   goto label if previous comparison <                                   | jl loop ; if ac < 4 |
+| jn    label     |                                        goto label if NF == TRUE                                         | jl loop ; if ac < 4 |
 | halt            |                                              stop running                                               |                halt |
 
 

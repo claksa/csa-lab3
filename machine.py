@@ -2,7 +2,7 @@ import logging
 import sys
 
 from isa import Opcode, read_code, Operand_type
-from alu import ALU
+from alu import ALU, Flag
 from enum import Enum
 
 # = 127; 7-битные адреса в памяти
@@ -130,6 +130,11 @@ class ControlUnit:
             self.data_path.BR = src
         elif dest == "acc":
             self.data_path.ACC = src
+
+    def jump(self, addr):
+        self.PC = addr
+        self.tick += 1
+        self.trace()
 
     def operand_fetch(self):
 
@@ -387,9 +392,10 @@ class ControlUnit:
         if self.IR is Opcode.RET:
             pass
         if self.IR is Opcode.JMP:
-            pass
-        if self.IR is Opcode.JL:
-            pass
+            self.jump(instr['op'])
+        if self.IR is Opcode.JN:
+            if self.data_path.ALU.flags[Flag.NF] is True:
+                self.jump(instr['op'])
 
     def address_fetch(self, address, offset, scale):
         res = 0
