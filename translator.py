@@ -30,7 +30,7 @@ def decode_as_register(operand):
 
 
 def is_register(operand):
-    if operand == 'acc' or operand == 'dr' or operand == 'br' or operand == 'sp':
+    if operand == 'acc' or operand == 'dr' or operand == 'br' or operand == 'sp' or operand == 'r7':
         return True
     else:
         return False
@@ -255,5 +255,5 @@ def main(file):
 
 
 if __name__ == '__main__':
-    filename = "tests/instr.asm"
+    filename = "examples/prob2.asm"
     main(filename)

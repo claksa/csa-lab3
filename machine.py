@@ -174,7 +174,7 @@ class ControlUnit:
                 right_op = self.get_reg(source["value"])
 
             elif src_type == Operand_type.CONST:
-                right_op = int(source["value"], 32)
+                right_op = int(source["value"], 16)
             elif src_type == Operand_type.MEM:
                 right_op = self.address_fetch(right_op["addr"], right_op["offset"], right_op["scale"])
                 is_indirect = True
@@ -222,7 +222,7 @@ class ControlUnit:
                 right_op = self.get_reg(source["value"])
 
             elif src_type == Operand_type.CONST:
-                right_op = int(source["value"], 32)
+                right_op = int(source["value"], 16)
             elif src_type == Operand_type.MEM:
                 right_op = self.address_fetch(right_op["addr"], right_op["offset"], right_op["scale"])
                 is_indirect = True
@@ -266,7 +266,7 @@ class ControlUnit:
                 right_op = self.get_reg(source["value"])
 
             elif src_type == Operand_type.CONST:
-                right_op = int(source["value"], 32)
+                right_op = int(source["value"], 16)
             elif src_type == Operand_type.MEM:
                 right_op = self.address_fetch(right_op["addr"], right_op["offset"], right_op["scale"])
                 is_indirect = True
@@ -308,7 +308,7 @@ class ControlUnit:
                 op = self.get_reg(value)
 
             elif op_type == Operand_type.CONST:
-                op = int(value, 32)
+                op = int(value, 16)
 
             elif op_type == Operand_type.MEM:
                 op = self.address_fetch(value["addr"], value["offset"], value["scale"])
@@ -367,7 +367,7 @@ class ControlUnit:
                 op = self.get_reg(value)
 
             elif op_type == Operand_type.CONST:
-                op = int(value, 32)
+                op = int(value, 16)
 
             elif op_type == Operand_type.MEM:
                 op = self.address_fetch(value["addr"], value["offset"], value["scale"])
@@ -398,7 +398,7 @@ class ControlUnit:
                 op = self.get_reg(value)
 
             elif op_type == Operand_type.CONST:
-                op = int(value, 32)
+                op = int(value, 16)
 
             self.step += 2
             self.data_path.ALU.right = op
@@ -486,7 +486,7 @@ class ControlUnit:
 
             source = instr["source"]
             # addr
-            right_op = int(source["value"], 7)
+            right_op = int(source["value"], 16)
 
             self.data_path.MDR = left_op
             self.data_path.MAR = right_op
@@ -506,7 +506,7 @@ class ControlUnit:
             dest = instr["dest"]
             source = instr["source"]
             # addr
-            right_op = int(source["value"], 7)
+            right_op = int(source["value"], 16)
             self.data_path.MAR = right_op
             # прочитанное значение в регистре данных
             self.data_path.read_from_mem()
@@ -598,6 +598,7 @@ class ControlUnit:
         self.instruction_fetch()
         self.operand_fetch()
         self.reset_tick()
+        self.data_path.ALU.reset_alu()
         self.reset_step()
 
 

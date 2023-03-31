@@ -2,18 +2,38 @@
     {
         "opcode": "db",
         "address": 0,
-        "data": 3
+        "data": 1
     },
     {
-        "opcode": "mov",
+        "opcode": "db",
+        "address": 1,
+        "data": 2
+    },
+    {
+        "opcode": "db",
+        "address": 2,
+        "data": 4294967296
+    },
+    {
+        "opcode": "db",
+        "address": 3,
+        "data": 2
+    },
+    {
+        "opcode": "db",
+        "address": 4,
+        "data": 2
+    },
+    {
+        "opcode": "ld",
         "address": 0,
         "dest": {
             "type": "reg",
-            "value": "br"
+            "value": "acc"
         },
         "source": {
             "type": "const",
-            "value": "5"
+            "value": "0"
         }
     },
     {
@@ -25,23 +45,23 @@
         },
         "source": {
             "type": "const",
-            "value": "0"
-        }
-    },
-    {
-        "opcode": "sv",
-        "address": 2,
-        "dest": {
-            "type": "reg",
-            "value": "r7"
-        },
-        "source": {
-            "type": "const",
             "value": "1"
         }
     },
     {
         "opcode": "add",
+        "address": 2,
+        "dest": {
+            "type": "reg",
+            "value": "acc"
+        },
+        "source": {
+            "type": "reg",
+            "value": "r7"
+        }
+    },
+    {
+        "opcode": "sv",
         "address": 3,
         "dest": {
             "type": "reg",
@@ -53,73 +73,160 @@
         }
     },
     {
-        "opcode": "test",
+        "opcode": "sv",
         "address": 4,
-        "op": {
-            "type": "reg",
-            "value": "acc"
-        }
-    },
-    {
-        "opcode": "jz",
-        "address": 5,
-        "op": 7
-    },
-    {
-        "opcode": "jmp",
-        "address": 6,
-        "op": 12
-    },
-    {
-        "opcode": "mov",
-        "address": 7,
         "dest": {
             "type": "reg",
-            "value": "acc"
+            "value": "r7"
         },
         "source": {
             "type": "const",
-            "value": "4"
+            "value": "0"
         }
     },
     {
-        "opcode": "mod",
-        "address": 8,
-        "op": {
+        "opcode": "ld",
+        "address": 5,
+        "dest": {
+            "type": "reg",
+            "value": "br"
+        },
+        "source": {
             "type": "const",
             "value": "2"
         }
     },
     {
-        "opcode": "mov",
+        "opcode": "sub",
+        "address": 6,
+        "dest": {
+            "type": "reg",
+            "value": "br"
+        },
+        "source": {
+            "type": "reg",
+            "value": "acc"
+        }
+    },
+    {
+        "opcode": "jn",
+        "address": 7,
+        "op": 9
+    },
+    {
+        "opcode": "jmp",
+        "address": 8,
+        "op": 19
+    },
+    {
+        "opcode": "ld",
         "address": 9,
+        "dest": {
+            "type": "reg",
+            "value": "r7"
+        },
+        "source": {
+            "type": "const",
+            "value": "4"
+        }
+    },
+    {
+        "opcode": "mov",
+        "address": 10,
         "dest": {
             "type": "reg",
             "value": "acc"
         },
         "source": {
-            "type": "const",
-            "value": "4"
+            "type": "reg",
+            "value": "br"
         }
     },
     {
         "opcode": "div",
-        "address": 10,
-        "op": {
-            "type": "const",
-            "value": "2"
+        "address": 11,
+        "dest": {
+            "type": "reg",
+            "value": "r7"
+        },
+        "source": {
+            "type": "reg",
+            "value": "br"
         }
     },
     {
-        "opcode": "mul",
-        "address": 11,
+        "opcode": "test",
+        "address": 12,
         "op": {
+            "type": "reg",
+            "value": "dr"
+        }
+    },
+    {
+        "opcode": "jz",
+        "address": 13,
+        "op": 15
+    },
+    {
+        "opcode": "jmp",
+        "address": 14,
+        "op": 0
+    },
+    {
+        "opcode": "ld",
+        "address": 15,
+        "dest": {
+            "type": "reg",
+            "value": "br"
+        },
+        "source": {
             "type": "const",
-            "value": "2"
+            "value": "3"
+        }
+    },
+    {
+        "opcode": "add",
+        "address": 16,
+        "dest": {
+            "type": "reg",
+            "value": "br"
+        },
+        "source": {
+            "type": "reg",
+            "value": "acc"
+        }
+    },
+    {
+        "opcode": "sv",
+        "address": 17,
+        "dest": {
+            "type": "reg",
+            "value": "br"
+        },
+        "source": {
+            "type": "const",
+            "value": "3"
+        }
+    },
+    {
+        "opcode": "jmp",
+        "address": 18,
+        "op": 0
+    },
+    {
+        "opcode": "ld",
+        "address": 19,
+        "dest": {
+            "type": "reg",
+            "value": "acc"
+        },
+        "source": {
+            "type": "const",
+            "value": "3"
         }
     },
     {
         "opcode": "halt",
-        "address": 12
+        "address": 20
     }
 ]

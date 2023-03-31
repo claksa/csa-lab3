@@ -27,6 +27,16 @@ class ALU:
         self.left = left
         self.right = right
 
+    def reset_alu(self):
+        self.left: int = 0
+        self.right: int = 0
+
+    def reset_flags(self):
+        self.set_flag(Flag.ZF, True)
+        self.set_flag(Flag.CF, True)
+        self.set_flag(Flag.NF, True)
+        self.set_flag(Flag.OF, True)
+
     def check_res(self):
         if self.res == 0:
             self.set_flag(Flag.ZF, True)
