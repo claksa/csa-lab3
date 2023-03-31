@@ -11,7 +11,7 @@ loop:
     sv r7 0
 compare:
     ld br 2
-    sub br acc
+    sub acc br
     jn test_odd
     jmp end
 test_odd:

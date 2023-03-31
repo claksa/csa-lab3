@@ -218,264 +218,84 @@
   - Выполнение инструкции
 
 ## Выполнение программы
-Пример выполнения программы `instr.asm`
+Пример выполнения программы `echo.asm`
 ```
 ------
 {STEP: Step.INSTR_FETCH, TICK: 1}
 {PC: 0, IR: 0, SP: 4294967293, BR: 0, R7: 0, ACC: 0 }
 {MDR: 0 }
-{CR: {'opcode': <Opcode.DB: 'db'>, 'address': 0, 'data': 3}}
+{CR: {'opcode': <Opcode.LD: 'ld'>, 'address': 0, 'dest': {'type': 'reg', 'value': 'r7'}, 'source': {'type': 'const', 'value': '4294967295'}}}
 {ALU: {<Flag.NF: 'NF'>: False, <Flag.CF: 'CF'>: False, <Flag.ZF: 'ZF'>: False, <Flag.OF: 'OF'>: False} }
 
 ------
 {STEP: Step.INSTR_FETCH, TICK: 2}
-{PC: 0, IR: Opcode.DB, SP: 4294967293, BR: 0, R7: 0, ACC: 0 }
+{PC: 0, IR: Opcode.LD, SP: 4294967293, BR: 0, R7: 0, ACC: 0 }
 {MDR: 0 }
-{CR: {'opcode': <Opcode.DB: 'db'>, 'address': 0, 'data': 3}}
-{ALU: {<Flag.NF: 'NF'>: False, <Flag.CF: 'CF'>: False, <Flag.ZF: 'ZF'>: False, <Flag.OF: 'OF'>: False} }
-
-[{'opcode': <Opcode.MOV: 'mov'>, 'address': 0, 'dest': {'type': 'reg', 'value': 'br'}, 'source': {'type': 'const', 'value': '5'}}, {'opcode': <Opcode.LD: 'ld'>, 'address': 1, 'dest': {'type': 'reg', 'value': 'r7'}, 'source': {'type': 'const', 'value': '0'}}, {'opcode': <Opcode.SV: 'sv'>, 'address': 2, 'dest': {'type': 'reg', 'value': 'r7'}, 'source': {'type': 'const', 'value': '1'}}, {'opcode': <Opcode.ADD: 'add'>, 'address': 3, 'dest': {'type': 'reg', 'value': 'acc'}, 'source': {'type': 'const', 'value': '1'}}, {'opcode': <Opcode.TEST: 'test'>, 'address': 4, 'op': {'type': 'reg', 'value': 'acc'}}, {'opcode': <Opcode.JZ: 'jz'>, 'address': 5, 'op': 7}, {'opcode': <Opcode.JMP: 'jmp'>, 'address': 6, 'op': 12}, {'opcode': <Opcode.MOV: 'mov'>, 'address': 7, 'dest': {'type': 'reg', 'value': 'acc'}, 'source': {'type': 'const', 'value': '4'}}, {'opcode': <Opcode.MOD: 'mod'>, 'address': 8, 'op': {'type': 'const', 'value': '2'}}, {'opcode': <Opcode.MOV: 'mov'>, 'address': 9, 'dest': {'type': 'reg', 'value': 'acc'}, 'source': {'type': 'const', 'value': '4'}}, {'opcode': <Opcode.DIV: 'div'>, 'address': 10, 'op': {'type': 'const', 'value': '2'}}, {'opcode': <Opcode.MUL: 'mul'>, 'address': 11, 'op': {'type': 'const', 'value': '2'}}, {'opcode': <Opcode.HALT: 'halt'>, 'address': 12}]
-------
-{STEP: Step.INSTR_FETCH, TICK: 2}
-{PC: 0, IR: Opcode.DB, SP: 4294967293, BR: 0, R7: 0, ACC: 0 }
-{MDR: 3 }
-{CR: {'opcode': <Opcode.DB: 'db'>, 'address': 0, 'data': 3}}
-{ALU: {<Flag.NF: 'NF'>: False, <Flag.CF: 'CF'>: False, <Flag.ZF: 'ZF'>: False, <Flag.OF: 'OF'>: False} }
-
-------
-{STEP: Step.INSTR_FETCH, TICK: 1}
-{PC: 0, IR: Opcode.DB, SP: 4294967293, BR: 0, R7: 0, ACC: 0 }
-{MDR: 3 }
-{CR: {'opcode': <Opcode.MOV: 'mov'>, 'address': 0, 'dest': {'type': 'reg', 'value': 'br'}, 'source': {'type': 'const', 'value': '5'}}}
-{ALU: {<Flag.NF: 'NF'>: False, <Flag.CF: 'CF'>: False, <Flag.ZF: 'ZF'>: False, <Flag.OF: 'OF'>: False} }
-
-------
-{STEP: Step.INSTR_FETCH, TICK: 2}
-{PC: 0, IR: Opcode.MOV, SP: 4294967293, BR: 0, R7: 0, ACC: 0 }
-{MDR: 3 }
-{CR: {'opcode': <Opcode.MOV: 'mov'>, 'address': 0, 'dest': {'type': 'reg', 'value': 'br'}, 'source': {'type': 'const', 'value': '5'}}}
-{ALU: {<Flag.NF: 'NF'>: False, <Flag.CF: 'CF'>: False, <Flag.ZF: 'ZF'>: False, <Flag.OF: 'OF'>: False} }
-
-------
-{STEP: Step.OPERAND_FETCH, TICK: 2}
-{PC: 0, IR: Opcode.MOV, SP: 4294967293, BR: 0, R7: 0, ACC: 0 }
-{MDR: 3 }
-{CR: {'opcode': <Opcode.MOV: 'mov'>, 'address': 0, 'dest': {'type': 'reg', 'value': 'br'}, 'source': {'type': 'const', 'value': '5'}}}
-{ALU: {<Flag.NF: 'NF'>: False, <Flag.CF: 'CF'>: False, <Flag.ZF: 'ZF'>: False, <Flag.OF: 'OF'>: False} }
-
-------
-{STEP: Step.OPERAND_FETCH, TICK: 3}
-{PC: 0, IR: Opcode.MOV, SP: 4294967293, BR: 0, R7: 0, ACC: 0 }
-{MDR: 3 }
-{CR: {'opcode': <Opcode.MOV: 'mov'>, 'address': 0, 'dest': {'type': 'reg', 'value': 'br'}, 'source': {'type': 'const', 'value': '5'}}}
-{ALU: {<Flag.NF: 'NF'>: False, <Flag.CF: 'CF'>: False, <Flag.ZF: 'ZF'>: False, <Flag.OF: 'OF'>: False} }
-
-------
-{STEP: Step.OPERAND_FETCH, TICK: 4}
-{PC: 0, IR: Opcode.MOV, SP: 4294967293, BR: 5, R7: 0, ACC: 0 }
-{MDR: 3 }
-{CR: {'opcode': <Opcode.MOV: 'mov'>, 'address': 0, 'dest': {'type': 'reg', 'value': 'br'}, 'source': {'type': 'const', 'value': '5'}}}
-{ALU: {<Flag.NF: 'NF'>: False, <Flag.CF: 'CF'>: False, <Flag.ZF: 'ZF'>: False, <Flag.OF: 'OF'>: False} }
-
-------
-{STEP: Step.OPERAND_FETCH, TICK: 5}
-{PC: 1, IR: Opcode.MOV, SP: 4294967293, BR: 5, R7: 0, ACC: 0 }
-{MDR: 3 }
-{CR: {'opcode': <Opcode.MOV: 'mov'>, 'address': 0, 'dest': {'type': 'reg', 'value': 'br'}, 'source': {'type': 'const', 'value': '5'}}}
-{ALU: {<Flag.NF: 'NF'>: False, <Flag.CF: 'CF'>: False, <Flag.ZF: 'ZF'>: False, <Flag.OF: 'OF'>: False} }
-
-------
-{STEP: Step.INSTR_FETCH, TICK: 1}
-{PC: 1, IR: Opcode.MOV, SP: 4294967293, BR: 5, R7: 0, ACC: 0 }
-{MDR: 3 }
-{CR: {'opcode': <Opcode.LD: 'ld'>, 'address': 1, 'dest': {'type': 'reg', 'value': 'r7'}, 'source': {'type': 'const', 'value': '0'}}}
-{ALU: {<Flag.NF: 'NF'>: False, <Flag.CF: 'CF'>: False, <Flag.ZF: 'ZF'>: False, <Flag.OF: 'OF'>: False} }
-
-------
-{STEP: Step.INSTR_FETCH, TICK: 2}
-{PC: 1, IR: Opcode.LD, SP: 4294967293, BR: 5, R7: 0, ACC: 0 }
-{MDR: 3 }
-{CR: {'opcode': <Opcode.LD: 'ld'>, 'address': 1, 'dest': {'type': 'reg', 'value': 'r7'}, 'source': {'type': 'const', 'value': '0'}}}
+{CR: {'opcode': <Opcode.LD: 'ld'>, 'address': 0, 'dest': {'type': 'reg', 'value': 'r7'}, 'source': {'type': 'const', 'value': '4294967295'}}}
 {ALU: {<Flag.NF: 'NF'>: False, <Flag.CF: 'CF'>: False, <Flag.ZF: 'ZF'>: False, <Flag.OF: 'OF'>: False} }
 
 ------
 {STEP: Step.INSTR_FETCH, TICK: 3}
-{PC: 1, IR: Opcode.LD, SP: 4294967293, BR: 5, R7: 3, ACC: 0 }
-{MDR: 3 }
-{CR: {'opcode': <Opcode.LD: 'ld'>, 'address': 1, 'dest': {'type': 'reg', 'value': 'r7'}, 'source': {'type': 'const', 'value': '0'}}}
+{PC: 0, IR: Opcode.LD, SP: 4294967293, BR: 0, R7: 1, ACC: 0 }
+{MDR: 1 }
+{CR: {'opcode': <Opcode.LD: 'ld'>, 'address': 0, 'dest': {'type': 'reg', 'value': 'r7'}, 'source': {'type': 'const', 'value': '4294967295'}}}
 {ALU: {<Flag.NF: 'NF'>: False, <Flag.CF: 'CF'>: False, <Flag.ZF: 'ZF'>: False, <Flag.OF: 'OF'>: False} }
 
 ------
 {STEP: Step.INSTR_FETCH, TICK: 4}
-{PC: 2, IR: Opcode.LD, SP: 4294967293, BR: 5, R7: 3, ACC: 0 }
-{MDR: 3 }
-{CR: {'opcode': <Opcode.LD: 'ld'>, 'address': 1, 'dest': {'type': 'reg', 'value': 'r7'}, 'source': {'type': 'const', 'value': '0'}}}
+{PC: 1, IR: Opcode.LD, SP: 4294967293, BR: 0, R7: 1, ACC: 0 }
+{MDR: 1 }
+{CR: {'opcode': <Opcode.LD: 'ld'>, 'address': 0, 'dest': {'type': 'reg', 'value': 'r7'}, 'source': {'type': 'const', 'value': '4294967295'}}}
 {ALU: {<Flag.NF: 'NF'>: False, <Flag.CF: 'CF'>: False, <Flag.ZF: 'ZF'>: False, <Flag.OF: 'OF'>: False} }
 
 ------
 {STEP: Step.INSTR_FETCH, TICK: 1}
-{PC: 2, IR: Opcode.LD, SP: 4294967293, BR: 5, R7: 3, ACC: 0 }
-{MDR: 3 }
-{CR: {'opcode': <Opcode.SV: 'sv'>, 'address': 2, 'dest': {'type': 'reg', 'value': 'r7'}, 'source': {'type': 'const', 'value': '1'}}}
+{PC: 1, IR: Opcode.LD, SP: 4294967293, BR: 0, R7: 1, ACC: 0 }
+{MDR: 1 }
+{CR: {'opcode': <Opcode.SV: 'sv'>, 'address': 1, 'dest': {'type': 'reg', 'value': 'r7'}, 'source': {'type': 'const', 'value': '4294967294'}}}
 {ALU: {<Flag.NF: 'NF'>: False, <Flag.CF: 'CF'>: False, <Flag.ZF: 'ZF'>: False, <Flag.OF: 'OF'>: False} }
 
 ------
 {STEP: Step.INSTR_FETCH, TICK: 2}
-{PC: 2, IR: Opcode.SV, SP: 4294967293, BR: 5, R7: 3, ACC: 0 }
-{MDR: 3 }
-{CR: {'opcode': <Opcode.SV: 'sv'>, 'address': 2, 'dest': {'type': 'reg', 'value': 'r7'}, 'source': {'type': 'const', 'value': '1'}}}
+{PC: 1, IR: Opcode.SV, SP: 4294967293, BR: 0, R7: 1, ACC: 0 }
+{MDR: 1 }
+{CR: {'opcode': <Opcode.SV: 'sv'>, 'address': 1, 'dest': {'type': 'reg', 'value': 'r7'}, 'source': {'type': 'const', 'value': '4294967294'}}}
 {ALU: {<Flag.NF: 'NF'>: False, <Flag.CF: 'CF'>: False, <Flag.ZF: 'ZF'>: False, <Flag.OF: 'OF'>: False} }
 
 ------
 {STEP: Step.OPERAND_FETCH, TICK: 3}
-{PC: 2, IR: Opcode.SV, SP: 4294967293, BR: 5, R7: 3, ACC: 0 }
-{MDR: 3 }
-{CR: {'opcode': <Opcode.SV: 'sv'>, 'address': 2, 'dest': {'type': 'reg', 'value': 'r7'}, 'source': {'type': 'const', 'value': '1'}}}
+{PC: 1, IR: Opcode.SV, SP: 4294967293, BR: 0, R7: 1, ACC: 0 }
+{MDR: 1 }
+{CR: {'opcode': <Opcode.SV: 'sv'>, 'address': 1, 'dest': {'type': 'reg', 'value': 'r7'}, 'source': {'type': 'const', 'value': '4294967294'}}}
 {ALU: {<Flag.NF: 'NF'>: False, <Flag.CF: 'CF'>: False, <Flag.ZF: 'ZF'>: False, <Flag.OF: 'OF'>: False} }
 
-{MEM1: 3}
+{MEM4294967294: 1}
 ------
 {STEP: Step.OPERAND_FETCH, TICK: 4}
-{PC: 2, IR: Opcode.SV, SP: 4294967293, BR: 5, R7: 3, ACC: 0 }
-{MDR: 3 }
-{CR: {'opcode': <Opcode.SV: 'sv'>, 'address': 2, 'dest': {'type': 'reg', 'value': 'r7'}, 'source': {'type': 'const', 'value': '1'}}}
+{PC: 1, IR: Opcode.SV, SP: 4294967293, BR: 0, R7: 1, ACC: 0 }
+{MDR: 1 }
+{CR: {'opcode': <Opcode.SV: 'sv'>, 'address': 1, 'dest': {'type': 'reg', 'value': 'r7'}, 'source': {'type': 'const', 'value': '4294967294'}}}
 {ALU: {<Flag.NF: 'NF'>: False, <Flag.CF: 'CF'>: False, <Flag.ZF: 'ZF'>: False, <Flag.OF: 'OF'>: False} }
 
 ------
 {STEP: Step.OPERAND_FETCH, TICK: 5}
-{PC: 3, IR: Opcode.SV, SP: 4294967293, BR: 5, R7: 3, ACC: 0 }
-{MDR: 3 }
-{CR: {'opcode': <Opcode.SV: 'sv'>, 'address': 2, 'dest': {'type': 'reg', 'value': 'r7'}, 'source': {'type': 'const', 'value': '1'}}}
+{PC: 2, IR: Opcode.SV, SP: 4294967293, BR: 0, R7: 1, ACC: 0 }
+{MDR: 1 }
+{CR: {'opcode': <Opcode.SV: 'sv'>, 'address': 1, 'dest': {'type': 'reg', 'value': 'r7'}, 'source': {'type': 'const', 'value': '4294967294'}}}
 {ALU: {<Flag.NF: 'NF'>: False, <Flag.CF: 'CF'>: False, <Flag.ZF: 'ZF'>: False, <Flag.OF: 'OF'>: False} }
 
 ------
 {STEP: Step.INSTR_FETCH, TICK: 1}
-{PC: 3, IR: Opcode.SV, SP: 4294967293, BR: 5, R7: 3, ACC: 0 }
-{MDR: 3 }
-{CR: {'opcode': <Opcode.ADD: 'add'>, 'address': 3, 'dest': {'type': 'reg', 'value': 'acc'}, 'source': {'type': 'const', 'value': '1'}}}
+{PC: 2, IR: Opcode.SV, SP: 4294967293, BR: 0, R7: 1, ACC: 0 }
+{MDR: 1 }
+{CR: {'opcode': <Opcode.HALT: 'halt'>, 'address': 2}}
 {ALU: {<Flag.NF: 'NF'>: False, <Flag.CF: 'CF'>: False, <Flag.ZF: 'ZF'>: False, <Flag.OF: 'OF'>: False} }
 
 ------
 {STEP: Step.INSTR_FETCH, TICK: 2}
-{PC: 3, IR: Opcode.ADD, SP: 4294967293, BR: 5, R7: 3, ACC: 0 }
-{MDR: 3 }
-{CR: {'opcode': <Opcode.ADD: 'add'>, 'address': 3, 'dest': {'type': 'reg', 'value': 'acc'}, 'source': {'type': 'const', 'value': '1'}}}
+{PC: 2, IR: Opcode.HALT, SP: 4294967293, BR: 0, R7: 1, ACC: 0 }
+{MDR: 1 }
+{CR: {'opcode': <Opcode.HALT: 'halt'>, 'address': 2}}
 {ALU: {<Flag.NF: 'NF'>: False, <Flag.CF: 'CF'>: False, <Flag.ZF: 'ZF'>: False, <Flag.OF: 'OF'>: False} }
-
-left_op, right_op: 0 1
-------
-{STEP: Step.OPERAND_FETCH, TICK: 2}
-{PC: 3, IR: Opcode.ADD, SP: 4294967293, BR: 5, R7: 3, ACC: 0 }
-{MDR: 3 }
-{CR: {'opcode': <Opcode.ADD: 'add'>, 'address': 3, 'dest': {'type': 'reg', 'value': 'acc'}, 'source': {'type': 'const', 'value': '1'}}}
-{ALU: {<Flag.NF: 'NF'>: False, <Flag.CF: 'CF'>: False, <Flag.ZF: 'ZF'>: False, <Flag.OF: 'OF'>: False} }
-
-------
-{STEP: Step.OPERAND_FETCH, TICK: 3}
-{PC: 3, IR: Opcode.ADD, SP: 4294967293, BR: 5, R7: 3, ACC: 1 }
-{MDR: 3 }
-{CR: {'opcode': <Opcode.ADD: 'add'>, 'address': 3, 'dest': {'type': 'reg', 'value': 'acc'}, 'source': {'type': 'const', 'value': '1'}}}
-{ALU: {<Flag.NF: 'NF'>: False, <Flag.CF: 'CF'>: False, <Flag.ZF: 'ZF'>: False, <Flag.OF: 'OF'>: False} }
-
-------
-{STEP: Step.OPERAND_FETCH, TICK: 4}
-{PC: 3, IR: Opcode.ADD, SP: 4294967293, BR: 5, R7: 3, ACC: 1 }
-{MDR: 3 }
-{CR: {'opcode': <Opcode.ADD: 'add'>, 'address': 3, 'dest': {'type': 'reg', 'value': 'acc'}, 'source': {'type': 'const', 'value': '1'}}}
-{ALU: {<Flag.NF: 'NF'>: False, <Flag.CF: 'CF'>: False, <Flag.ZF: 'ZF'>: False, <Flag.OF: 'OF'>: False} }
-
-------
-{STEP: Step.OPERAND_FETCH, TICK: 5}
-{PC: 4, IR: Opcode.ADD, SP: 4294967293, BR: 5, R7: 3, ACC: 1 }
-{MDR: 3 }
-{CR: {'opcode': <Opcode.ADD: 'add'>, 'address': 3, 'dest': {'type': 'reg', 'value': 'acc'}, 'source': {'type': 'const', 'value': '1'}}}
-{ALU: {<Flag.NF: 'NF'>: False, <Flag.CF: 'CF'>: False, <Flag.ZF: 'ZF'>: False, <Flag.OF: 'OF'>: False} }
-
-------
-{STEP: Step.INSTR_FETCH, TICK: 1}
-{PC: 4, IR: Opcode.ADD, SP: 4294967293, BR: 5, R7: 3, ACC: 1 }
-{MDR: 3 }
-{CR: {'opcode': <Opcode.TEST: 'test'>, 'address': 4, 'op': {'type': 'reg', 'value': 'acc'}}}
-{ALU: {<Flag.NF: 'NF'>: False, <Flag.CF: 'CF'>: False, <Flag.ZF: 'ZF'>: False, <Flag.OF: 'OF'>: False} }
-
-------
-{STEP: Step.INSTR_FETCH, TICK: 2}
-{PC: 4, IR: Opcode.TEST, SP: 4294967293, BR: 5, R7: 3, ACC: 1 }
-{MDR: 3 }
-{CR: {'opcode': <Opcode.TEST: 'test'>, 'address': 4, 'op': {'type': 'reg', 'value': 'acc'}}}
-{ALU: {<Flag.NF: 'NF'>: False, <Flag.CF: 'CF'>: False, <Flag.ZF: 'ZF'>: False, <Flag.OF: 'OF'>: False} }
-
-------
-{STEP: Step.INSTR_FETCH, TICK: 3}
-{PC: 4, IR: Opcode.TEST, SP: 4294967293, BR: 5, R7: 3, ACC: 1 }
-{MDR: 3 }
-{CR: {'opcode': <Opcode.TEST: 'test'>, 'address': 4, 'op': {'type': 'reg', 'value': 'acc'}}}
-{ALU: {<Flag.NF: 'NF'>: False, <Flag.CF: 'CF'>: False, <Flag.ZF: 'ZF'>: False, <Flag.OF: 'OF'>: False} }
-
-------
-{STEP: Step.INSTR_FETCH, TICK: 4}
-{PC: 5, IR: Opcode.TEST, SP: 4294967293, BR: 5, R7: 3, ACC: 1 }
-{MDR: 3 }
-{CR: {'opcode': <Opcode.TEST: 'test'>, 'address': 4, 'op': {'type': 'reg', 'value': 'acc'}}}
-{ALU: {<Flag.NF: 'NF'>: False, <Flag.CF: 'CF'>: False, <Flag.ZF: 'ZF'>: False, <Flag.OF: 'OF'>: False} }
-
-------
-{STEP: Step.INSTR_FETCH, TICK: 1}
-{PC: 5, IR: Opcode.TEST, SP: 4294967293, BR: 5, R7: 3, ACC: 1 }
-{MDR: 3 }
-{CR: {'opcode': <Opcode.JZ: 'jz'>, 'address': 5, 'op': 7}}
-{ALU: {<Flag.NF: 'NF'>: False, <Flag.CF: 'CF'>: False, <Flag.ZF: 'ZF'>: False, <Flag.OF: 'OF'>: False} }
-
-------
-{STEP: Step.INSTR_FETCH, TICK: 2}
-{PC: 5, IR: Opcode.JZ, SP: 4294967293, BR: 5, R7: 3, ACC: 1 }
-{MDR: 3 }
-{CR: {'opcode': <Opcode.JZ: 'jz'>, 'address': 5, 'op': 7}}
-{ALU: {<Flag.NF: 'NF'>: False, <Flag.CF: 'CF'>: False, <Flag.ZF: 'ZF'>: False, <Flag.OF: 'OF'>: False} }
-
-------
-{STEP: Step.ADDR_FETCH, TICK: 3}
-{PC: 6, IR: Opcode.JZ, SP: 4294967293, BR: 5, R7: 3, ACC: 1 }
-{MDR: 3 }
-{CR: {'opcode': <Opcode.JZ: 'jz'>, 'address': 5, 'op': 7}}
-{ALU: {<Flag.NF: 'NF'>: False, <Flag.CF: 'CF'>: False, <Flag.ZF: 'ZF'>: False, <Flag.OF: 'OF'>: False} }
-
-------
-{STEP: Step.INSTR_FETCH, TICK: 1}
-{PC: 6, IR: Opcode.JZ, SP: 4294967293, BR: 5, R7: 3, ACC: 1 }
-{MDR: 3 }
-{CR: {'opcode': <Opcode.JMP: 'jmp'>, 'address': 6, 'op': 12}}
-{ALU: {<Flag.NF: 'NF'>: False, <Flag.CF: 'CF'>: False, <Flag.ZF: 'ZF'>: False, <Flag.OF: 'OF'>: False} }
-
-------
-{STEP: Step.INSTR_FETCH, TICK: 2}
-{PC: 6, IR: Opcode.JMP, SP: 4294967293, BR: 5, R7: 3, ACC: 1 }
-{MDR: 3 }
-{CR: {'opcode': <Opcode.JMP: 'jmp'>, 'address': 6, 'op': 12}}
-{ALU: {<Flag.NF: 'NF'>: False, <Flag.CF: 'CF'>: False, <Flag.ZF: 'ZF'>: False, <Flag.OF: 'OF'>: False} }
-
-------
-{STEP: Step.ADDR_FETCH, TICK: 3}
-{PC: 12, IR: Opcode.JMP, SP: 4294967293, BR: 5, R7: 3, ACC: 1 }
-{MDR: 3 }
-{CR: {'opcode': <Opcode.JMP: 'jmp'>, 'address': 6, 'op': 12}}
-{ALU: {<Flag.NF: 'NF'>: False, <Flag.CF: 'CF'>: False, <Flag.ZF: 'ZF'>: False, <Flag.OF: 'OF'>: False} }
-
-------
-{STEP: Step.INSTR_FETCH, TICK: 1}
-{PC: 12, IR: Opcode.JMP, SP: 4294967293, BR: 5, R7: 3, ACC: 1 }
-{MDR: 3 }
-{CR: {'opcode': <Opcode.HALT: 'halt'>, 'address': 12}}
-{ALU: {<Flag.NF: 'NF'>: False, <Flag.CF: 'CF'>: False, <Flag.ZF: 'ZF'>: False, <Flag.OF: 'OF'>: False} }
-
-------
-{STEP: Step.INSTR_FETCH, TICK: 2}
-{PC: 12, IR: Opcode.HALT, SP: 4294967293, BR: 5, R7: 3, ACC: 1 }
-{MDR: 3 }
-{CR: {'opcode': <Opcode.HALT: 'halt'>, 'address': 12}}
-{ALU: {<Flag.NF: 'NF'>: False, <Flag.CF: 'CF'>: False, <Flag.ZF: 'ZF'>: False, <Flag.OF: 'OF'>: False} }
-
-
-Process finished with exit code 0
 
 ```

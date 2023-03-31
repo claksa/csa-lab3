@@ -255,5 +255,5 @@ def main(file):
 
 
 if __name__ == '__main__':
-    filename = "examples/echo.asm"
+    filename = "examples/instr.asm"
     main(filename)

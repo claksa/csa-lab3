@@ -1,3 +1,4 @@
+import json
 import logging
 import sys
 
@@ -357,33 +358,30 @@ class ControlUnit:
             self.trace()
 
         if self.IR is Opcode.MOD:
-            instr = instr["op"]
-            op_type = instr["type"]
-            value = instr["value"]
-            op = 0
-            is_indirect = False
+            dest = instr["dest"]
+            value = dest["value"]
+            left_op = self.get_reg(value)
 
-            if op_type == Operand_type.REG:
-                op = self.get_reg(value)
-
-            elif op_type == Operand_type.CONST:
-                op = int(value, 0)
-
-            elif op_type == Operand_type.MEM:
-                op = self.address_fetch(value["addr"], value["offset"], value["scale"])
-                is_indirect = True
-
-            if is_indirect:
-                self.step += 1
-            else:
-                self.step += 2
-            self.trace()
+            source = instr["source"]
+            right_op = 0
+            if source["type"] == 'reg':
+                right_op = self.get_reg(source["value"])
+            if source["type"] == 'const':
+                right_op = int(source["value"], 0)
             #   execution step:
-            self.data_path.ALU.put_values(self.data_path.ACC, op)
+            self.data_path.ALU.put_values(left_op, right_op)
             self.data_path.ALU.mod(True)
+            if value == "acc":
+                self.data_path.ACC = self.data_path.ALU.res
+            elif value == "dr":
+                self.data_path.MDR = self.data_path.ALU.res
+            elif value == "br":
+                self.data_path.BR = self.data_path.ALU.res
+            elif value == "r7":
+                self.data_path.R7 = self.data_path.ALU.res
             self.tick += 1
             self.trace()
-
+            pass
             self.PC += 1
             self.tick += 1
             self.trace()
@@ -614,7 +612,7 @@ def simulation(code_stream, input_file, limit=1000):
             control_unit.run()
     except StopIteration:
         pass
-    output_stream = ''.join(control_unit.data_path.output)
+    output_stream = control_unit.data_path.output
     return output_stream
 
 
@@ -622,7 +620,7 @@ def main(code_file, res_file, input_file):
     code_stream = read_code(code_file)
     output = simulation(code_stream, input_file, limit=1000)
     with open(res_file, 'w') as file:
-        file.write(''.join(output))
+        json.dump(output, file)
 
 
 if __name__ == '__main__':
