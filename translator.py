@@ -79,7 +79,7 @@ def translate(program):
         if statement[0] in data_mem_instr:
             struct["opcode"] = Opcode(statement[0])
             struct["address"] = data_addr
-            struct |= {"data": int(statement[1], 16)}
+            struct |= {"data": int(statement[1], 0)}
             data_addr += 1
             code.append(struct)
             continue
