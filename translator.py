@@ -73,7 +73,7 @@ def translate(program):
     labels = []
     for line, statement in enumerate(statements, 1):
 
-        struct = {"opcode": None, "term": None}
+        struct = {"opcode": None, "address": None}
         label = {"label": None, "addr": None}
 
         if statement[0] not in instructions:
@@ -87,7 +87,7 @@ def translate(program):
             continue
         size = len(statement)
         struct["opcode"] = Opcode(statement[0])
-        struct["term"] = Term(line, decode_address(line-1))
+        struct["address"] = line-1
         if size == 2:
             arg = statement[1]
             is_label = False
@@ -188,5 +188,5 @@ def main(file):
 
 
 if __name__ == '__main__':
-    filename = "test.asm"
+    filename = "tests/instr.asm"
     main(filename)

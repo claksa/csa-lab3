@@ -1,184 +1,326 @@
 import logging
 import sys
 
-from isa import Opcode, read_code
+from isa import Opcode, read_code, Operand_type
+from alu import ALU
+from enum import Enum
 
 # = 127; 7-битные адреса в памяти
-ADDR_MAX_SIZE = '0x7F'
-#  16-битная память данных '0xFFFFFFFF'== 2^32-1 == макс. адрес
+ADDR_MAX_SIZE = 2 ** 7
+MAX_ADDR = ADDR_MAX_SIZE - 1
+
+#  32-битная память данных '0xFFFFFFFF'== 2^32-1 == макс. адрес
 DATA_MEM_MAX_SIZE = 2 ** 32
+
+# 16-битная память команд 0xFFFF == 2^16-1, макс. "кодировка" команды; not realised :( optional
+CMD_MEM_MAX_SIZE = 2 ** 16
+
 INPUT_ADDR = DATA_MEM_MAX_SIZE - 1
 OUTPUT_ADDR = DATA_MEM_MAX_SIZE - 2
+SP_DEFAULT = DATA_MEM_MAX_SIZE - 3
+
+
+# Размер регистра -- 32 бит (?)
 
 
 class DataPath:
-    def __init__(self, token_stream):
-        # mgm
-        self.input: list = token_stream
+    def __init__(self):
         self.output: list = []
+        self.input: list = []
 
         self.data_mem: list = [0] * DATA_MEM_MAX_SIZE
 
-        self.acc: int = 0
-        self.data_reg: int = 0
-        self.addr_reg: int = 0
+        self.ACC: int = 0
+        # memory-data-register
+        self.MDR: int = 0
+        # memory-address-register
+        self.MAR: int = 0
+        # stack pointer
+        self.SP: int = SP_DEFAULT
+        # command register
+        self.CR: int = 0
+        # buffer register
+        self.BR: int = 3
 
-        self.left: int = 0
-        self.right: int = 0
-
-    def inc(self):
-        self.left += 1
+        self.ALU = ALU()
 
     def latch_acc(self):
-        self.acc = self.data_mem[self.addr_reg]
-
-    def zero_flag(self):
-        self.acc = 0
+        self.ACC = self.data_mem[self.MAR]
 
     def write_to_mem(self):
-        self.data_mem[self.addr_reg] = self.data_reg
-
-    def write(self):
-        if self.addr_reg is OUTPUT_ADDR:
-            self.output.append(self.data_mem[self.addr_reg])
-        else:
-            self.write_to_mem()
+        self.data_mem[self.MAR] = self.MDR
+        if self.MAR == OUTPUT_ADDR:
+            self.output.append(self.data_mem[OUTPUT_ADDR])
 
     def read_from_mem(self):
-        self.data_reg = self.data_mem[self.addr_reg]
-        # idk but this next tick:
-        self.latch_acc()
+        if self.MAR == INPUT_ADDR:
+            self.data_mem[INPUT_ADDR] = self.input.pop()
+        self.MDR = self.data_mem[self.MAR]
 
-    def read(self):
-        if self.addr_reg is INPUT_ADDR:
-            self.data_mem[self.addr_reg] = self.input.pop()
-        else:
-            self.read_from_mem()
+
+class Step(Enum):
+    INSTR_FETCH = 1
+    ADDR_FETCH = 2
+    OPERAND_FETCH = 3
+    EXECUTION = 4
 
 
 class ControlUnit:
-    def __init__(self, program, data_path):
+    def __init__(self, program):
         self.program = program
-        self.data_path = data_path
-        # уточнить
-        self.cmd_mem: list = [0] * DATA_MEM_MAX_SIZE
-        # счетчик тактов
+
+        # holds the memory address of the next instruction to be fetched from main memory -- program counter
+        self.PC: int = 0
+        self.data_path = DataPath()
+
+        # instruction register; holds current instruction
+        self.IR: int = 0
+
+        self.step: int = 0
         self.tick: int = 0
-
-        # счетчик "шагов" каждой инструкции
-        self.step_counter: int = 0
-
-        # count register; store next instr
-        self.cr: int = 0
-        # instruction pointer; current register
-        self.ip: int = 0
-
-        self.opcode = Opcode.HALT
 
     def tick(self):
         self.tick += 1
 
-    def current_tick(self):
-        return self.tick
+    def reset_step(self):
+        self.step = 0
 
-    def reset_step_counter(self):
-        self.step_counter = 0
+    def reset_tick(self):
+        self.tick = 0
 
-    def do_step(self):
-        self.step_counter += 1
+    def latch_IR(self, instr):
+        self.IR = instr
 
-    def latch_instr_pointer(self):
-        self.ip += 1
-
-    def current_instr_addr(self):
-        return self.ip
-
-    def latch_program_counter(self, next_instr):
-        if next_instr:
-            self.cr += 1
+    def latch_program_counter(self, next_addr):
+        if next_addr:
+            self.PC += 1
         else:
-            # error???
-            pass
+            instr = self.program[self.PC]
+            # TODO handle next program error
+            assert 'op' in instr, "internal error"
+            # self.PC = instr["op"]
 
-    def do_sstep(self):
-        if self.step_counter == 0:
-            # instruction  fetch
-            instr = self.program[self.cr]
-            self.opcode = instr['opcode']
-            self.do_step()
-        elif self.step_counter == 1:
-            # decode
-            self.do_step()
-            pass
-        elif self.step_counter == 2:
-            # operand fetch
-            self.do_step()
-            pass
-        elif self.step_counter == 3:
-            # execute
-            self.do_step()
-            pass
-        elif self.step_counter == 4:
-            # operand store steps is being carried out
-            pass
+    def instruction_fetch(self):
+        self.step += 1
+        instr = self.program[self.PC]
+        self.data_path.MDR = instr
+        self.tick += 1
+        self.trace()
+        self.data_path.CR = self.data_path.MDR
+        self.tick += 1
+        self.trace()
+        self.IR = instr["opcode"]
+        self.tick += 1
+        self.trace()
 
-    def execute_by_steps(self):
-        # 0 instruction fetch
-        instr = self.program[self].cr
-        # trace control unit trace
-        self.do_step()
-        pass
-        # 1 decode
-        self.opcode = instr['opcode']
-        self.do_step()
-        pass
-        # 2 operands fetch
-        if instr['operands']:
-            operands = instr['operands']
-        self.do_step()
-        pass
-        # 3 execute
-        self.execute_instruction()
-        self.do_step()
-        pass
-        # 4
-        pass
+    def get_reg(self, value):
+        if value == "acc":
+            return self.data_path.ACC
+        elif value == "dr":
+            return self.data_path.MDR
+        elif value == "br":
+            return self.data_path.BR
+        elif value == "sp":
+            return self.data_path.SP
 
-    def execute_instruction(self):
-        if self.opcode is Opcode.HALT:
+    def operand_fetch(self):
+
+        instr = self.data_path.CR
+        self.step += 1
+
+        if self.IR is Opcode.HALT:
             raise StopIteration()
 
-        if self.opcode is Opcode.MOV:
-            # execute mov
+        if self.IR is Opcode.ADD:
+            # fetch operand(as step)
+            dest = instr["dest"]
+            dest_type = dest["type"]
+
+            source = instr["source"]
+            src_type = source["type"]
+
+            left_op = 0
+            right_op = 0
+            is_indirect = False
+
+            if src_type == Operand_type.REG:
+                right_op = self.get_reg(source["value"])
+
+            elif src_type == Operand_type.CONST:
+                right_op = int(source["value"], 32)
+            elif src_type == Operand_type.MEM:
+                right_op = self.address_fetch(right_op["addr"], right_op["offset"], right_op["scale"])
+                is_indirect = True
+
+            if dest_type == Operand_type.REG:
+                left_op = self.get_reg(dest["value"])
+
+            elif dest_type == Operand_type.MEM:
+                left_op = self.address_fetch(right_op["addr"], right_op["offset"], right_op["scale"])
+                is_indirect = True
+
+            print("left_op, right_op:", left_op, right_op)
+
+            self.trace()
+            #   execution step:
+            self.tick += 1
+            if is_indirect:
+                self.step += 1
+            else:
+                self.step += 2
+
+            self.data_path.ALU.put_values(left_op, right_op)
+            self.data_path.ALU.add(set_flags=True)
+            self.data_path.ACC = self.data_path.ALU.res
+
+            self.trace()
+            if dest["value"] == "dr":
+                self.data_path.MDR = self.data_path.ACC
+            elif dest["value"] == "br":
+                self.data_path.BR = self.data_path.ACC
+
+                self.tick += 1
+                self.trace()
+
+            self.PC += 1
+            self.tick += 1
+            self.trace()
+
+        if self.IR is Opcode.MOV:
+            dest = instr["dest"]
+            dest_type = dest["type"]
+
+            source = instr["source"]
+            src_type = source["type"]
+            left_op = 0
+            right_op = 0
+
+            if src_type == Operand_type.REG:
+                right_op = self.get_reg(source["value"])
+
+            elif src_type == Operand_type.CONST:
+                right_op = int(source["value"], 32)
+            elif src_type == Operand_type.MEM:
+                right_op = self.address_fetch(right_op["addr"], right_op["offset"], right_op["scale"])
+
+            if dest_type == Operand_type.MEM:
+                left_op = self.address_fetch(right_op["addr"], right_op["offset"], right_op["scale"])
+
+            self.step += 1
+            self.trace()
+
+            # execution
+            if dest["value"] == "acc":
+                self.data_path.ACC = right_op
+            elif dest["value"] == "dr":
+                self.data_path.MDR = right_op
+            self.tick += 1
+            self.step += 1
+            self.trace()
+
+        if self.IR is Opcode.CMP:
+            dest = instr["dest"]
+            dest_type = dest["type"]
+
+            source = instr["source"]
+            src_type = source["type"]
+            left_op = 0
+            right_op = 0
+
+            if src_type == Operand_type.REG:
+                right_op = self.get_reg(source["value"])
+
+            elif src_type == Operand_type.CONST:
+                right_op = int(source["value"], 32)
+            elif src_type == Operand_type.MEM:
+                right_op = self.address_fetch(right_op["addr"], right_op["offset"], right_op["scale"])
+
+            if dest_type == Operand_type.REG:
+                left_op = self.get_reg(dest["value"])
+
+            elif dest_type == Operand_type.MEM:
+                left_op = self.address_fetch(right_op["addr"], right_op["offset"], right_op["scale"])
+
+            self.step += 1
+            self.trace()
+            #   execution step:
+            self.data_path.ALU.put_values(left_op, right_op)
+            self.data_path.ALU.reverse_right()
+            self.data_path.ALU.add(True)
+            self.data_path.ACC = self.data_path.ALU.res
+            self.tick += 1
+            self.trace()
+
+            if dest["value"] == "dr":
+                self.data_path.MDR = self.data_path.ACC
+                self.tick += 1
+            self.step += 1
+            self.trace()
+
+    def address_fetch(self, address, offset, scale):
+        res = 0
+        if address is not None:
+            # fetch address value --> acc
+            if offset is not None and scale is not None:
+                # addr*scale+offset -- use alu 2 ticks (or more)
+                pass
+            if offset is None and scale is not None:
+                # addr*scale -- use alu 1 time +1 tick
+                pass
+            if offset is not None and scale is None:
+                # addr + offset -- use alu 1 time +1 tick
+                pass
+        elif offset is not None:
+            # acc+offset -- use alu 1 ticks
             pass
+        self.step += 1
+        return res
 
-        self.latch_instr_pointer()
+    def trace(self):
+        print("------")
+        state = "{{STEP: {}, TICK: {}}}".format(
+            Step(self.step),
+            self.tick
+        )
+        registers = "{{PC: {}, IR: {}, SP: {}, BR: {}, ACC: {} }}".format(
+            self.PC,
+            self.IR,
+            self.data_path.SP,
+            self.data_path.BR,
+            self.data_path.ACC
+        )
+        instruction = "{{MDR: {} }}".format(self.data_path.MDR)
+        command_reg = "{{CR: {}}}".format(self.data_path.CR)
+        alu_state = "{{ALU: {} }}".format(self.data_path.ALU.flags)
+        print(state)
+        print(registers)
+        print(instruction)
+        print(command_reg)
+        print(alu_state)
+        print()
+
+    def run(self):
+        self.instruction_fetch()
+        self.operand_fetch()
+        self.reset_tick()
+        self.reset_step()
 
 
-# limit -- ограничение на кол-во операций
-def simulation(code_stream, input_tokens, limit=1000):
-    data_path = DataPath(input_tokens)
-    control_unit = ControlUnit(code_stream, data_path)
+def simulation(code_stream, limit=1000):
+    control_unit = ControlUnit(code_stream)
+    control_unit.run()
     try:
         while True:
-            # throw exception for very long instruction
-            control_unit.do_step()
-            control_unit.reset_step_counter()
+            control_unit.run()
     except StopIteration:
         pass
-    output_stream = ''.join(data_path.output)
+    output_stream = ''.join(control_unit.data_path.output)
     return output_stream
 
 
-def main(code_file, input_file):
+def main(code_file, res_file, input_file):
     code_stream = read_code(code_file)
-    with open(input_file, encoding="utf-8") as file:
-        input_text = file.read()
-        input_token = []
-        for char in input_text:
-            input_token.append(char)
-
-    output = simulation(code_stream, input_tokens=input_token, limit=1000)
+    output = simulation(code_stream, limit=1000)
     print(''.join(output))
     # print("instr_counter: ", instr_counter, "ticks:", ticks)
 
@@ -186,4 +328,4 @@ def main(code_file, input_file):
 if __name__ == '__main__':
     code = "output.txt"
     result = "cpu.txt"
-    main(code, result)
+    main(code, result, input_file="build/input.txt")

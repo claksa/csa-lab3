@@ -18,6 +18,12 @@ class Opcode(str, Enum):
     HALT = 'halt'  # 0
 
 
+class Operand_type(str, Enum):
+    REG = 'reg'
+    MEM = 'mem'
+    CONST = 'const'
+
+
 class Operand(namedtuple('operand', 'cmd, p1, p2')):
 
     # don't call :/ but not important I assume
