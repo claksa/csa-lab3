@@ -49,32 +49,35 @@ class ALU:
         self.right &= MASK
         self.res = self.left + self.right
         self.res &= MASK
-        self.check_res()
+        if set_flags:
+            self.check_res()
 
     def div(self, set_flags: bool):
         self.left &= MASK
         self.right &= MASK
         self.res = self.left // self.right
         self.res &= MASK
-        self.check_res()
+        if set_flags:
+            self.check_res()
 
     def mul(self, set_flags: bool):
         self.left &= MASK
         self.right &= MASK
         self.res = self.left * self.right
         self.res &= MASK
-        self.check_res()
+        if set_flags:
+            self.check_res()
 
     def mod(self, set_flags: bool):
         self.left &= MASK
         self.right &= MASK
         self.res = self.right % self.right
         self.res &= MASK
-        self.check_res()
+        if set_flags:
+            self.check_res()
 
     def inc(self):
         self.left += 1
-        self.check_res()
 
     def dec(self):
         self.left -= 1
@@ -85,3 +88,4 @@ class ALU:
 
     def reverse_right(self):
         self.right = ~self.right
+        pass

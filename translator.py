@@ -3,7 +3,7 @@ from isa import Opcode, Operand, Term, write_code
 DATA_MEM_MAX_SIZE = 0xFFFF
 ADDR_MEM_MAX_SIZE = '0x7FF'
 
-instructions = {'mov', 'push', 'pop', 'call', 'ret', 'add', 'mul', 'div', 'jmp', 'cmp', 'jl', 'halt'}
+instructions = {'mov', 'push', 'pop', 'call', 'ret', 'add', 'mul', 'div', 'jmp', 'sub', 'jl', 'halt'}
 
 
 def remove_comments(statement):
@@ -96,8 +96,55 @@ def translate(program):
                     struct |= {"op": label["addr"]}
                     is_label = True
             if not is_label:
-                # TODO handle reg and mem operands
                 op = {"type": "const", "value": arg}
+                mem_dict = {"addr": None, "offset": None, "scale": None}
+                if "[" in arg:
+                    op["type"] = "mem"
+                    tmp_arg = arg
+                    tmp_arg = tmp_arg.replace('[', '').replace(']', '')
+                    if "+" in tmp_arg:
+                        tmp_arg = tmp_arg.split("+")
+                        if "*" in tmp_arg[0] or "*" in tmp_arg[1]:
+                            if "*" in tmp_arg[0]:
+                                tmp_arr = tmp_arg[0].split("*")
+
+                                for i in tmp_arr:
+                                    if is_register(i):
+                                        mem_dict["addr"] = i
+                                    else:
+                                        mem_dict["scale"] = i
+                                if is_register(tmp_arg[1]):
+                                    mem_dict["addr"] = tmp_arg[1]
+                                else:
+                                    mem_dict["offset"] = tmp_arg[1]
+
+                            if "*" in tmp_arg[1]:
+                                tmp_arr = tmp_arg[1].split("*")
+                                print("possible scale", tmp_arr)
+                                for i in tmp_arr:
+                                    if is_register(i):
+                                        mem_dict["addr"] = i
+                                    else:
+                                        mem_dict["scale"] = i
+
+                                if is_register(tmp_arg[0]):
+                                    mem_dict["addr"] = tmp_arg[0]
+                                else:
+                                    mem_dict["offset"] = ord(tmp_arg[0])
+                        else:
+                            for i in tmp_arg:
+                                if is_register(i):
+                                    mem_dict["addr"] = i
+                                else:
+                                    mem_dict["offset"] = i
+                    else:
+                        if is_register(tmp_arg):
+                            mem_dict["addr"] = tmp_arg
+                        else:
+                            mem_dict["offset"] = tmp_arg
+                    op["value"] = mem_dict
+                elif is_register(arg):
+                    op["type"] = "reg"
                 struct |= {"op": op}
         elif size == 3:
             struct |= {"dest": None, "source": None}
@@ -181,7 +228,7 @@ def translate(program):
 
 
 def main(file):
-    target = "output.txt"
+    target = "build/output.txt"
     with open(file, 'r') as program:
         code = translate(program)
     write_code(target, code)

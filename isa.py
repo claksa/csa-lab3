@@ -4,18 +4,19 @@ from enum import Enum
 
 
 class Opcode(str, Enum):
-    MOV = 'mov'  # 2 args
+    MOV = 'mov'  # 2 args +
     PUSH = 'push'  # 1 arg
     POP = 'pop'  # 1 arg
     CALL = 'call'  # 1 arg
     RET = 'ret'  # 0
-    ADD = 'add'  # 2 args
-    MUL = 'mul'  # 1 arg
-    DIV = 'div'  # 1 arg
+    ADD = 'add'  # 2 args +
+    MUL = 'mul'  # 1 arg +
+    DIV = 'div'  # 1 arg +
+    MOD = 'mod' # 1 arg +
     JMP = 'jmp'  # 1 arg
-    CMP = 'cmp'  # 1 arg
+    SUB = 'sub'  # 1 arg +
     JL = 'jl'  # 1 arg
-    HALT = 'halt'  # 0
+    HALT = 'halt'  # 0 +
 
 
 class Operand_type(str, Enum):

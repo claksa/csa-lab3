@@ -1,4 +1,3 @@
 ; comment
-add acc 1
-add br acc
+sub br 1
 halt

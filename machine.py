@@ -40,7 +40,7 @@ class DataPath:
         # command register
         self.CR: int = 0
         # buffer register
-        self.BR: int = 3
+        self.BR: int = 0
 
         self.ALU = ALU()
 
@@ -123,6 +123,14 @@ class ControlUnit:
         elif value == "sp":
             return self.data_path.SP
 
+    def save_value(self, dest, src):
+        if dest == "dr":
+            self.data_path.MDR = src
+        elif dest == "br":
+            self.data_path.BR = src
+        elif dest == "acc":
+            self.data_path.ACC = src
+
     def operand_fetch(self):
 
         instr = self.data_path.CR
@@ -160,27 +168,22 @@ class ControlUnit:
                 is_indirect = True
 
             print("left_op, right_op:", left_op, right_op)
-
-            self.trace()
-            #   execution step:
-            self.tick += 1
             if is_indirect:
                 self.step += 1
             else:
                 self.step += 2
+            self.trace()
+            #   execution step:
+            self.tick += 1
 
             self.data_path.ALU.put_values(left_op, right_op)
             self.data_path.ALU.add(set_flags=True)
             self.data_path.ACC = self.data_path.ALU.res
 
             self.trace()
-            if dest["value"] == "dr":
-                self.data_path.MDR = self.data_path.ACC
-            elif dest["value"] == "br":
-                self.data_path.BR = self.data_path.ACC
-
-                self.tick += 1
-                self.trace()
+            self.save_value(dest["value"], self.data_path.ACC)
+            self.tick += 1
+            self.trace()
 
             self.PC += 1
             self.tick += 1
@@ -194,6 +197,7 @@ class ControlUnit:
             src_type = source["type"]
             left_op = 0
             right_op = 0
+            is_indirect = False
 
             if src_type == Operand_type.REG:
                 right_op = self.get_reg(source["value"])
@@ -202,23 +206,34 @@ class ControlUnit:
                 right_op = int(source["value"], 32)
             elif src_type == Operand_type.MEM:
                 right_op = self.address_fetch(right_op["addr"], right_op["offset"], right_op["scale"])
+                is_indirect = True
 
             if dest_type == Operand_type.MEM:
                 left_op = self.address_fetch(right_op["addr"], right_op["offset"], right_op["scale"])
+                is_indirect = True
 
-            self.step += 1
+            if is_indirect:
+                self.step += 1
+            else:
+                self.step += 2
             self.trace()
-
-            # execution
-            if dest["value"] == "acc":
-                self.data_path.ACC = right_op
-            elif dest["value"] == "dr":
-                self.data_path.MDR = right_op
+            #   execution step:
             self.tick += 1
-            self.step += 1
+
+            self.data_path.ALU.put_values(left_op, right_op)
+            self.data_path.ALU.add(set_flags=False)
+
+            self.trace()
+            self.save_value(dest["value"], self.data_path.ALU.res)
+
+            self.tick += 1
             self.trace()
 
-        if self.IR is Opcode.CMP:
+            self.PC += 1
+            self.tick += 1
+            self.trace()
+
+        if self.IR is Opcode.SUB:
             dest = instr["dest"]
             dest_type = dest["type"]
 
@@ -226,6 +241,7 @@ class ControlUnit:
             src_type = source["type"]
             left_op = 0
             right_op = 0
+            is_indirect = False
 
             if src_type == Operand_type.REG:
                 right_op = self.get_reg(source["value"])
@@ -234,27 +250,132 @@ class ControlUnit:
                 right_op = int(source["value"], 32)
             elif src_type == Operand_type.MEM:
                 right_op = self.address_fetch(right_op["addr"], right_op["offset"], right_op["scale"])
+                is_indirect = True
 
             if dest_type == Operand_type.REG:
                 left_op = self.get_reg(dest["value"])
 
             elif dest_type == Operand_type.MEM:
                 left_op = self.address_fetch(right_op["addr"], right_op["offset"], right_op["scale"])
+                is_indirect = True
 
-            self.step += 1
+            if is_indirect:
+                self.step += 1
+            else:
+                self.step += 2
             self.trace()
             #   execution step:
+            # TODO CHECK SUB TICKS
             self.data_path.ALU.put_values(left_op, right_op)
+            self.data_path.ALU.inc()
             self.data_path.ALU.reverse_right()
             self.data_path.ALU.add(True)
-            self.data_path.ACC = self.data_path.ALU.res
+            self.tick += 1
+            self.trace()
+            self.save_value(dest["value"], self.data_path.ALU.res)
+            self.trace()
+
+            self.PC += 1
             self.tick += 1
             self.trace()
 
-            if dest["value"] == "dr":
-                self.data_path.MDR = self.data_path.ACC
-                self.tick += 1
-            self.step += 1
+        if self.IR is Opcode.MUL:
+            op_type = instr["type"]
+            value = instr["value"]
+            op = 0
+            is_indirect = False
+
+            if op_type == Operand_type.REG:
+                op = self.get_reg(value)
+
+            elif op_type == Operand_type.CONST:
+                op = int(value, 32)
+
+            elif op_type == Operand_type.MEM:
+                op = self.address_fetch(value["addr"], value["offset"], value["scale"])
+                is_indirect = True
+
+            if is_indirect:
+                self.step += 1
+            else:
+                self.step += 2
+            self.trace()
+            #   execution step:
+            self.data_path.ALU.put_values(self.data_path.ACC, op)
+            self.data_path.ALU.mul(True)
+            self.tick += 1
+            self.trace()
+            self.save_value(self.data_path.ACC, self.data_path.ALU.res)
+            self.trace()
+
+            self.PC += 1
+            self.tick += 1
+            self.trace()
+
+        if self.IR is Opcode.DIV:
+            op_type = instr["type"]
+            value = instr["value"]
+            op = 0
+            is_indirect = False
+
+            if op_type == Operand_type.REG:
+                op = self.get_reg(value)
+
+            elif op_type == Operand_type.CONST:
+                op = int(value, 32)
+
+            elif op_type == Operand_type.MEM:
+                op = self.address_fetch(value["addr"], value["offset"], value["scale"])
+                is_indirect = True
+
+            if is_indirect:
+                self.step += 1
+            else:
+                self.step += 2
+            self.trace()
+            #   execution step:
+            self.data_path.ALU.put_values(self.data_path.ACC, op)
+            self.data_path.ALU.div(True)
+            self.tick += 1
+            self.trace()
+            self.save_value(self.data_path.ACC, self.data_path.ALU.res)
+            self.trace()
+
+            self.PC += 1
+            self.tick += 1
+            self.trace()
+
+        if self.IR is Opcode.MOD:
+            op_type = instr["type"]
+            value = instr["value"]
+            op = 0
+            is_indirect = False
+
+            if op_type == Operand_type.REG:
+                op = self.get_reg(value)
+
+            elif op_type == Operand_type.CONST:
+                op = int(value, 32)
+
+            elif op_type == Operand_type.MEM:
+                op = self.address_fetch(value["addr"], value["offset"], value["scale"])
+                is_indirect = True
+
+            if is_indirect:
+                self.step += 1
+            else:
+                self.step += 2
+            self.trace()
+            #   execution step:
+            self.data_path.ALU.put_values(self.data_path.ACC, op)
+            self.data_path.ALU.mod(True)
+            self.tick += 1
+            self.trace()
+            self.save_value(self.data_path.ACC, self.data_path.ALU.res)
+            self.trace()
+
+            self.PC += 1
+            self.tick += 1
             self.trace()
 
     def address_fetch(self, address, offset, scale):
@@ -326,6 +447,6 @@ def main(code_file, res_file, input_file):
 
 
 if __name__ == '__main__':
-    code = "output.txt"
+    code = "build/output.txt"
     result = "cpu.txt"
     main(code, result, input_file="build/input.txt")

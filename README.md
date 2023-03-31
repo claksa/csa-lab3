@@ -20,20 +20,20 @@
 <register> ::= 'ac'|'cr'|'dr'|'br'
 ```
 ### Семантика
-| mnemonic      |                                                 purpose                                                 |             example |
-|:--------------|:-------------------------------------------------------------------------------------------------------:|--------------------:|
-| mov dest src  | move data between registers, load immediate data into registers, move data between registers and memory |            mov ac 4 |
-| push src      |           insert a value onto the stack.  Useful for passing arguments, saving registers, etc           |              push 4 |
-| pop  dest     |                                     remove topmost value from stack                                     |              pop bp |
-| call func     |                    push the address of the next instruction and start executing func                    |          call print |
-| ret           |                    pop the return program counter, and jump there. Ends a subroutine                    |                 ret |
-| add dest, src |                                            dest = dest + src                                            |          add ac, dr |
-| mul   src     |                      multiplay acc and src as unsigned integers, put result on acc                      |              mul dr |
-| div   src     |                            divide acc by src: ratio --> acc, reminder --> dr                            |              dic dr |
-| jmp   label   |                       goto the instruction label: . skip anything else in the way                       |            jmp loop |
-| cmp   a, b    |                                           compare two values                                            |           cmp ac, 4 |
-| jl    label   |                                   goto label if previous comparison <                                   | jl loop ; if ac < 4 |
-| halt          |                                              stop running                                               |                halt |
+| mnemonic        |                                                 purpose                                                 |             example |
+|:----------------|:-------------------------------------------------------------------------------------------------------:|--------------------:|
+| mov dest src    | move data between registers, load immediate data into registers, move data between registers and memory |            mov ac 4 |
+| push src        |           insert a value onto the stack.  Useful for passing arguments, saving registers, etc           |              push 4 |
+| pop  dest       |                                     remove topmost value from stack                                     |              pop bp |
+| call func       |                    push the address of the next instruction and start executing func                    |          call print |
+| ret             |                    pop the return program counter, and jump there. Ends a subroutine                    |                 ret |
+| add dest, src   |                                            dest = dest + src                                            |          add ac, dr |
+| mul   src       |                      multiplay acc and src as unsigned integers, put result on acc                      |              mul dr |
+| div   src       |                            divide acc by src: ratio --> acc, reminder --> dr                            |              dic dr |
+| jmp   label     |                       goto the instruction label: . skip anything else in the way                       |            jmp loop |
+| sub   dest, src |                                             dest = dest-src                                             |           sub ac, 4 |
+| jl    label     |                                   goto label if previous comparison <                                   | jl loop ; if ac < 4 |
+| halt            |                                              stop running                                               |                halt |
 
 
 - Область видимости в ассемблере единая; типизации как таковой не существует 
