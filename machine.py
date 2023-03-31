@@ -57,6 +57,18 @@ class DataPath:
             self.data_mem[INPUT_ADDR] = self.input.pop()
         self.MDR = self.data_mem[self.MAR]
 
+    def push(self):
+        self.SP -= 1
+        self.MAR = self.SP
+        self.MDR = self.ALU.res
+        self.write_to_mem()
+
+    def pop(self):
+        self.MAR = self.SP
+        self.read_from_mem()
+        self.ALU.right = self.MDR
+        self.SP += 1
+
 
 class Step(Enum):
     INSTR_FETCH = 1
@@ -139,7 +151,6 @@ class ControlUnit:
     def operand_fetch(self):
 
         instr = self.data_path.CR
-        self.step += 1
 
         if self.IR is Opcode.HALT:
             raise StopIteration()
@@ -384,16 +395,81 @@ class ControlUnit:
             self.trace()
 
         if self.IR is Opcode.PUSH:
-            pass
+            instr = instr["op"]
+            op_type = instr["type"]
+            value = instr["value"]
+            op = 0
+
+            if op_type == Operand_type.REG:
+                op = self.get_reg(value)
+
+            elif op_type == Operand_type.CONST:
+                op = int(value, 32)
+
+            self.step += 2
+            self.data_path.ALU.right = op
+            # self.data_path.ALU.put_values(self.data_path.ACC, op)
+            self.data_path.ALU.add(False)
+            self.data_path.push()
+            self.tick += 1
+            self.trace()
+
+            self.PC += 1
+            self.tick += 1
+            self.trace()
+
         if self.IR is Opcode.POP:
-            pass
+            # operand fetch
+            instr = instr["op"]
+            value = instr["value"]
+
+            # only destination register
+            value = self.get_reg(value)
+            self.step += 2
+            self.tick += 1
+            self.trace()
+
+            # execute
+            self.data_path.pop()
+            self.data_path.ALU.add(False)
+            if value == "acc":
+                self.data_path.ACC = self.data_path.ALU.res
+            elif value == "dr":
+                self.data_path.MDR = self.data_path.ALU.res
+            elif value == "br":
+                self.data_path.BR = self.data_path.ALU.res
+            self.step += 1
+            self.tick += 1
+            self.trace()
+
+            self.PC += 1
+            self.tick += 1
+            self.trace()
         if self.IR is Opcode.CALL:
-            pass
+            self.step += 1
+            # положили на стек след инструкцию
+            self.PC += 1
+            self.tick += 1
+            self.trace()
+
+            self.data_path.ALU.right = self.PC
+            self.data_path.ALU.add(False)
+            self.data_path.push()
+            self.jump(instr['op'])
+            self.tick += 1
+            self.trace()
         if self.IR is Opcode.RET:
-            pass
+            # сняли со стека адрес возврата
+            self.data_path.pop()
+            self.data_path.ALU.add(False)
+            self.PC = self.data_path.ALU.res
+            self.tick += 1
+            self.trace()
         if self.IR is Opcode.JMP:
+            self.step += 1
             self.jump(instr['op'])
         if self.IR is Opcode.JN:
+            self.step += 1
             if self.data_path.ALU.flags[Flag.NF] is True:
                 self.jump(instr['op'])
 

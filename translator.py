@@ -225,7 +225,8 @@ def translate(program):
         address += 1
         code.append(struct)
     for c in code:
-        if c['opcode'] is Opcode.JMP:
+        opcode = c['opcode']
+        if opcode is Opcode.JMP or opcode is Opcode.JN or opcode is Opcode.CALL:
             arg = c['op']['value']
             for label in labels:
                 if arg == label["label"]:

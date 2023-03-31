@@ -5,8 +5,8 @@ from enum import Enum
 
 class Opcode(str, Enum):
     MOV = 'mov'  # 2 args +
-    PUSH = 'push'  # 1 arg
-    POP = 'pop'  # 1 arg
+    PUSH = 'push'  # 1 arg --(sp) acc --> (sp)
+    POP = 'pop'  # 1 arg (sp) --> acc ++(sp)
     CALL = 'call'  # 1 arg
     RET = 'ret'  # 0
     ADD = 'add'  # 2 args +
