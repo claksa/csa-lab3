@@ -3,7 +3,8 @@ from isa import Opcode, Operand, Term, write_code
 DATA_MEM_MAX_SIZE = 0xFFFF
 ADDR_MEM_MAX_SIZE = '0x7FF'
 
-instructions = {'mov', 'push', 'pop', 'call', 'ret', 'add', 'mul', 'div', 'mod', 'jmp', 'sub', 'jn', 'halt', 'sv', 'ld'}
+instructions = {'mov', 'push', 'pop', 'call', 'ret', 'add', 'mul', 'div', 'mod', 'jmp', 'sub', 'jn', 'jz', 'halt', 'sv','ld', 'test'}
+data_mem_instr = {'db'}
 
 
 def remove_comments(statement):
@@ -72,7 +73,16 @@ def translate(program):
     code = []
     labels = []
     address = 0
+    data_addr = 0
     for line, statement in enumerate(statements, 1):
+        struct = {"opcode": None, "address": None}
+        if statement[0] in data_mem_instr:
+            struct["opcode"] = Opcode(statement[0])
+            struct["address"] = data_addr
+            struct |= {"data": int(statement[1], 32)}
+            data_addr += 1
+            code.append(struct)
+            continue
 
         struct = {"opcode": None, "address": None}
         label = {"label": None, "addr": None}
@@ -226,7 +236,9 @@ def translate(program):
         code.append(struct)
     for c in code:
         opcode = c['opcode']
-        if opcode is Opcode.JMP or opcode is Opcode.JN or opcode is Opcode.CALL:
+        if opcode is Opcode.JMP or opcode is Opcode.JN or opcode is Opcode.CALL or opcode is Opcode.JZ:
+            if type(c['op']) is int:
+                continue
             arg = c['op']['value']
             for label in labels:
                 if arg == label["label"]:
@@ -243,5 +255,5 @@ def main(file):
 
 
 if __name__ == '__main__':
-    filename = "tests/instr.asm"
+    filename = "tests/prob2.asm"
     main(filename)

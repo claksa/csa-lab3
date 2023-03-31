@@ -56,9 +56,11 @@ class ALU:
         self.left &= MASK
         self.right &= MASK
         self.res = self.left // self.right
+        remainder = self.left % self.right
         self.res &= MASK
         if set_flags:
             self.check_res()
+        return remainder
 
     def mul(self, set_flags: bool):
         self.left &= MASK

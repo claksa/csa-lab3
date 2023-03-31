@@ -20,20 +20,24 @@
 <register> ::= 'ac'|'cr'|'dr'|'br'
 ```
 ### Семантика
-| mnemonic        |                                                 purpose                                                 |             example |
-|:----------------|:-------------------------------------------------------------------------------------------------------:|--------------------:|
-| mov dest src    | move data between registers, load immediate data into registers, move data between registers and memory |            mov ac 4 |
-| push src        |           insert a value onto the stack.  Useful for passing arguments, saving registers, etc           |              push 4 |
-| pop  dest       |                                     remove topmost value from stack                                     |              pop bp |
-| call func       |                    push the address of the next instruction and start executing func                    |          call print |
-| ret             |                    pop the return program counter, and jump there. Ends a subroutine                    |                 ret |
-| add dest, src   |                                            dest = dest + src                                            |          add ac, dr |
-| mul   src       |                      multiplay acc and src as unsigned integers, put result on acc                      |              mul dr |
-| div   src       |                            divide acc by src: ratio --> acc, reminder --> dr                            |              dic dr |
-| jmp   label     |                       goto the instruction label: . skip anything else in the way                       |            jmp loop |
-| sub   dest, src |                                             dest = dest-src                                             |           sub ac, 4 |
-| jn    label     |                                        goto label if NF == TRUE                                         | jl loop ; if ac < 4 |
-| halt            |                                              stop running                                               |                halt |
+| mnemonic             |                                                 purpose                                                 |    example |
+|:---------------------|:-------------------------------------------------------------------------------------------------------:|-----------:|
+| mov dest src         | move data between registers, load immediate data into registers, move data between registers and memory |   mov ac 4 |
+| push src             |           insert a value onto the stack.  Useful for passing arguments, saving registers, etc           |     push 4 |
+| pop  dest            |                                     remove topmost value from stack                                     |     pop bp |
+| call func            |                    push the address of the next instruction and start executing func                    | call print |
+| ret                  |                    pop the return program counter, and jump there. Ends a subroutine                    |        ret |
+| add dest, src        |                                            dest = dest + src                                            | add ac, dr |
+| mul   src            |                      multiplay acc and src as unsigned integers, put result on acc                      |     mul dr |
+| div  dest, src       |                                    dest = dest/src remainder -- MDR                                     | div acc br |
+| jmp   label          |                       goto the instruction label: . skip anything else in the way                       |   jmp loop |
+| sub   dest, src      |                                             dest = dest-src                                             |  sub ac, 4 |
+| jn    label          |                                        goto label if NF == TRUE                                         |    jn loop |
+| halt                 |                                              stop running                                               |       halt |
+| jz    label          |                                        goto label if ZF == TRUE                                         |    jz loop |
+| ld    dest_reg, addr |                                         dest_reg <-- mem(addr)                                          |    jz loop |
+| sv    reg, addr      |                                            reg --> mem(addr)                                            |    jz loop |
+| test    reg          |                                                set flags                                                |    jz loop |
 
 
 - Область видимости в ассемблере единая; типизации как таковой не существует 
@@ -51,45 +55,151 @@
     - cr -- scratch register, counter
     - dr -- scratch register, for data read from mem
     - br -- preserved register
+    - r7 -- additional gpr
 ## Система команд
 Мнемоника ассемблера и машинных слов совпадают (согласно варианту машинное слово имеет небинарное (struct)).
-- Для памяти данных машинное слово 32 бита, может быть как знаковым, так и беззнаковым
-- В cisc архитектуре системы команд для памяти команд машинное слово нефиксированной длины (1-3 слово):
-  - 1 слово -- 16-битный адрес команды
-  - 2, 3 слова -- указатели на операнды
+- 32-битная память данных
+- регистры 32 бита
+- 7-битный адрес
+
+Команды как таковые не кодируются, т.к. по варианту машинное слово инструкции имеет тип struct
 
 ### Кодирование инструкций
 - Машинный код сериализуется в список JSON
 - Адрес команды -- индекс списка
 
-Инструкции и данные кодируются по-разному:
+Пример кодирования инструкций:
 
 ```json
 [
     {
-        "mem": "instr",
-        "opcode": "mov",
-        "operands": ["1", "0x4"],
-        "term": [2, "0x01"]
+        "opcode": "db",
+        "address": 0,
+        "data": "7"
     },
-  
     {
-    "mem": "data",
-    "data": 44
+        "opcode": "db",
+        "address": 1,
+        "data": "0"
+    },
+    {
+        "opcode": "db",
+        "address": 2,
+        "data": "3"
+    },
+    {
+        "opcode": "mov",
+        "address": 0,
+        "dest": {
+            "type": "reg",
+            "value": "acc"
+        },
+        "source": {
+            "type": "const",
+            "value": "1"
+        }
+    },
+    {
+        "opcode": "ld",
+        "address": 1,
+        "dest": {
+            "type": "reg",
+            "value": "r7"
+        },
+        "source": {
+            "type": "const",
+            "value": "0"
+        }
+    },
+    {
+        "opcode": "mov",
+        "address": 2,
+        "dest": {
+            "type": "reg",
+            "value": "br"
+        },
+        "source": {
+            "type": "const",
+            "value": "5"
+        }
+    },
+    {
+        "opcode": "sv",
+        "address": 3,
+        "dest": {
+            "type": "reg",
+            "value": "br"
+        },
+        "source": {
+            "type": "const",
+            "value": "3"
+        }
+    },
+    {
+        "opcode": "jmp",
+        "address": 4,
+        "op": 5
+    },
+    {
+        "opcode": "mov",
+        "address": 5,
+        "dest": {
+            "type": "reg",
+            "value": "acc"
+        },
+        "source": {
+            "type": "const",
+            "value": "4"
+        }
+    },
+    {
+        "opcode": "mod",
+        "address": 6,
+        "op": {
+            "type": "const",
+            "value": "2"
+        }
+    },
+    {
+        "opcode": "mov",
+        "address": 7,
+        "dest": {
+            "type": "reg",
+            "value": "acc"
+        },
+        "source": {
+            "type": "const",
+            "value": "4"
+        }
+    },
+    {
+        "opcode": "div",
+        "address": 8,
+        "op": {
+            "type": "const",
+            "value": "2"
+        }
+    },
+    {
+        "opcode": "mul",
+        "address": 9,
+        "op": {
+            "type": "const",
+            "value": "2"
+        }
+    },
+    {
+        "opcode": "halt",
+        "address": 10
     }
 ]
 ```
-где:
-- `mem` -- тип памяти: команд/переменных;
-- `opcode` -- строка с кодом операции;
-- `data` -- данные, хранящиеся в ячейке памяти
-- `operands` -- массив операндов переменной длины: 0-2;
 
 ## Транслятор
 < тут должно быть описание процесса трансляции>
 ## Модель процессора
 описание
 ### DataPath
-### ControlUnit
 
+### ControlUnit
 ## Тестирование

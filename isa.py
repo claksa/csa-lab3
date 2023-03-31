@@ -16,9 +16,12 @@ class Opcode(str, Enum):
     JMP = 'jmp'  # 1 arg +
     SUB = 'sub'  # 1 arg +
     JN = 'jn'  # 1 arg +
+    JZ = 'jz'
     HALT = 'halt'  # 0 +
-    SV = 'sv'
-    LD = 'ld'
+    SV = 'sv' # +
+    LD = 'ld' # +
+    DB = 'db' #+
+    TEST = 'test'
 
 
 class Operand_type(str, Enum):

@@ -41,6 +41,7 @@ class DataPath:
         self.CR: int = 0
         # buffer register
         self.BR: int = 0
+        self.R7: int = 0
 
         self.ALU = ALU()
 
@@ -51,11 +52,13 @@ class DataPath:
         self.data_mem[self.MAR] = self.MDR
         if self.MAR == OUTPUT_ADDR:
             self.output.append(self.data_mem[OUTPUT_ADDR])
+        pass
 
     def read_from_mem(self):
         if self.MAR == INPUT_ADDR:
             self.data_mem[INPUT_ADDR] = self.input.pop()
         self.MDR = self.data_mem[self.MAR]
+        pass
 
     def push(self):
         self.SP -= 1
@@ -114,14 +117,10 @@ class ControlUnit:
 
     def instruction_fetch(self):
         self.step += 1
-        instr = self.program[self.PC]
-        self.data_path.MDR = instr
+        self.data_path.CR = self.program[self.PC]
         self.tick += 1
         self.trace()
-        self.data_path.CR = self.data_path.MDR
-        self.tick += 1
-        self.trace()
-        self.IR = instr["opcode"]
+        self.IR = self.data_path.CR["opcode"]
         self.tick += 1
         self.trace()
 
@@ -134,6 +133,8 @@ class ControlUnit:
             return self.data_path.BR
         elif value == "sp":
             return self.data_path.SP
+        elif value == "r7":
+            return self.data_path.R7
 
     def save_value(self, dest, src):
         if dest == "dr":
@@ -142,6 +143,8 @@ class ControlUnit:
             self.data_path.BR = src
         elif dest == "acc":
             self.data_path.ACC = src
+        elif dest == "r7":
+            self.data_path.R7 = src
 
     def jump(self, addr):
         self.PC = addr
@@ -329,31 +332,23 @@ class ControlUnit:
             self.trace()
 
         if self.IR is Opcode.DIV:
-            instr = instr["op"]
-            op_type = instr["type"]
-            value = instr["value"]
-            op = 0
-            is_indirect = False
+            dest = instr["dest"]
+            value = dest["value"]
+            left_op = self.get_reg(value)
 
-            if op_type == Operand_type.REG:
-                op = self.get_reg(value)
-
-            elif op_type == Operand_type.CONST:
-                op = int(value, 32)
-
-            elif op_type == Operand_type.MEM:
-                op = self.address_fetch(value["addr"], value["offset"], value["scale"])
-                is_indirect = True
-
-            if is_indirect:
-                self.step += 1
-            else:
-                self.step += 2
-            self.trace()
+            source = instr["source"]
+            right_op = self.get_reg(source["value"])
             #   execution step:
-            self.data_path.ALU.put_values(self.data_path.ACC, op)
-            self.data_path.ALU.div(True)
-            self.data_path.ACC = self.data_path.ALU.res
+            self.data_path.ALU.put_values(left_op, right_op)
+            self.data_path.MDR = self.data_path.ALU.div(True)
+            if value == "acc":
+                self.data_path.ACC = self.data_path.ALU.res
+            elif value == "dr":
+                self.data_path.MDR = self.data_path.ALU.res
+            elif value == "br":
+                self.data_path.BR = self.data_path.ALU.res
+            elif value == "r7":
+                self.data_path.R7 = self.data_path.ALU.res
             self.tick += 1
             self.trace()
 
@@ -386,7 +381,6 @@ class ControlUnit:
             #   execution step:
             self.data_path.ALU.put_values(self.data_path.ACC, op)
             self.data_path.ALU.mod(True)
-            self.data_path.ACC = self.data_path.ALU.res
             self.tick += 1
             self.trace()
 
@@ -472,6 +466,18 @@ class ControlUnit:
             self.step += 1
             if self.data_path.ALU.flags[Flag.NF] is True:
                 self.jump(instr['op'])
+            else:
+                self.PC += 1
+                self.tick += 1
+                self.trace()
+        if self.IR is Opcode.JZ:
+            self.step += 1
+            if self.data_path.ALU.flags[Flag.ZF] is True:
+                self.jump(instr['op'])
+            else:
+                self.PC += 1
+                self.tick += 1
+                self.trace()
         #  прямая загрузка -- сохранить значение в ячейку памяти dest <-- value
         if self.IR is Opcode.SV:
             self.step += 2
@@ -479,12 +485,16 @@ class ControlUnit:
             left_op = self.get_reg(dest["value"])
 
             source = instr["source"]
-            right_op = int(source["value"], 32)
+            # addr
+            right_op = int(source["value"], 7)
 
-            self.data_path.ALU.put_values(left_op, right_op)
-            self.data_path.ALU.add(False)
+            self.data_path.MDR = left_op
+            self.data_path.MAR = right_op
+            self.tick += 1
+            self.trace()
+
             self.data_path.write_to_mem()
-            # TODO проверить такты для прямой загрузки
+            print("{{MEM{}: {}}}". format(right_op, self.data_path.data_mem[right_op]))
             self.tick += 1
             self.trace()
 
@@ -500,6 +510,7 @@ class ControlUnit:
             self.data_path.MAR = right_op
             # прочитанное значение в регистре данных
             self.data_path.read_from_mem()
+
             self.data_path.ALU.right = self.data_path.MDR
             self.data_path.ALU.add(False)
 
@@ -510,6 +521,29 @@ class ControlUnit:
                 self.data_path.MDR = self.data_path.ALU.res
             elif value == "br":
                 self.data_path.BR = self.data_path.ALU.res
+            elif value == "r7":
+                self.data_path.R7 = self.data_path.ALU.res
+            self.tick += 1
+            self.trace()
+
+            self.PC += 1
+            self.tick += 1
+            self.trace()
+
+        if self.IR is Opcode.DB:
+            self.data_path.MAR = instr["address"]
+            self.data_path.MDR = instr["data"]
+            self.data_path.write_to_mem()
+
+            self.program.pop(self.PC)
+            print(self.program)
+            pass
+            self.trace()
+
+        if self.IR is Opcode.TEST:
+            instr = instr["op"]
+            self.data_path.ALU.right = self.get_reg(instr["value"])
+            self.data_path.ALU.add(True)
             self.tick += 1
             self.trace()
 
@@ -542,11 +576,12 @@ class ControlUnit:
             Step(self.step),
             self.tick
         )
-        registers = "{{PC: {}, IR: {}, SP: {}, BR: {}, ACC: {} }}".format(
+        registers = "{{PC: {}, IR: {}, SP: {}, BR: {}, R7: {}, ACC: {} }}".format(
             self.PC,
             self.IR,
             self.data_path.SP,
             self.data_path.BR,
+            self.data_path.R7,
             self.data_path.ACC
         )
         instruction = "{{MDR: {} }}".format(self.data_path.MDR)
@@ -582,7 +617,6 @@ def main(code_file, res_file, input_file):
     code_stream = read_code(code_file)
     output = simulation(code_stream, limit=1000)
     print(''.join(output))
-    # print("instr_counter: ", instr_counter, "ticks:", ticks)
 
 
 if __name__ == '__main__':
