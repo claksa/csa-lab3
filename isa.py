@@ -7,7 +7,7 @@ class Opcode(str, Enum):
     MOV = 'mov'  # 2 args +
     PUSH = 'push'  # 1 arg --(sp) acc --> (sp)
     POP = 'pop'  # 1 arg (sp) --> acc ++(sp)
-    CALL = 'call'  # 1 arg
+    CALL = 'call'  # 1 arg +
     RET = 'ret'  # 0
     ADD = 'add'  # 2 args +
     MUL = 'mul'  # 1 arg +
@@ -17,6 +17,8 @@ class Opcode(str, Enum):
     SUB = 'sub'  # 1 arg +
     JN = 'jn'  # 1 arg +
     HALT = 'halt'  # 0 +
+    SV = 'sv'
+    LD = 'ld'
 
 
 class Operand_type(str, Enum):

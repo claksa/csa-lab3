@@ -472,6 +472,50 @@ class ControlUnit:
             self.step += 1
             if self.data_path.ALU.flags[Flag.NF] is True:
                 self.jump(instr['op'])
+        #  прямая загрузка -- сохранить значение в ячейку памяти dest <-- value
+        if self.IR is Opcode.SV:
+            self.step += 2
+            dest = instr["dest"]
+            left_op = self.get_reg(dest["value"])
+
+            source = instr["source"]
+            right_op = int(source["value"], 32)
+
+            self.data_path.ALU.put_values(left_op, right_op)
+            self.data_path.ALU.add(False)
+            self.data_path.write_to_mem()
+            # TODO проверить такты для прямой загрузки
+            self.tick += 1
+            self.trace()
+
+            self.PC += 1
+            self.tick += 1
+            self.trace()
+        # прямая "выгрузка" -- загрузить из ячейки памяти reg <-- mem(addr)
+        if self.IR is Opcode.LD:
+            dest = instr["dest"]
+            source = instr["source"]
+            # addr
+            right_op = int(source["value"], 7)
+            self.data_path.MAR = right_op
+            # прочитанное значение в регистре данных
+            self.data_path.read_from_mem()
+            self.data_path.ALU.right = self.data_path.MDR
+            self.data_path.ALU.add(False)
+
+            value = dest["value"]
+            if value == "acc":
+                self.data_path.ACC = self.data_path.ALU.res
+            elif value == "dr":
+                self.data_path.MDR = self.data_path.ALU.res
+            elif value == "br":
+                self.data_path.BR = self.data_path.ALU.res
+            self.tick += 1
+            self.trace()
+
+            self.PC += 1
+            self.tick += 1
+            self.trace()
 
     def address_fetch(self, address, offset, scale):
         res = 0

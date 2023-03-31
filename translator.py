@@ -3,7 +3,7 @@ from isa import Opcode, Operand, Term, write_code
 DATA_MEM_MAX_SIZE = 0xFFFF
 ADDR_MEM_MAX_SIZE = '0x7FF'
 
-instructions = {'mov', 'push', 'pop', 'call', 'ret', 'add', 'mul', 'div', 'mod', 'jmp', 'sub', 'jn', 'halt'}
+instructions = {'mov', 'push', 'pop', 'call', 'ret', 'add', 'mul', 'div', 'mod', 'jmp', 'sub', 'jn', 'halt', 'sv', 'ld'}
 
 
 def remove_comments(statement):
