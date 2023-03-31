@@ -79,7 +79,7 @@ def translate(program):
         if statement[0] in data_mem_instr:
             struct["opcode"] = Opcode(statement[0])
             struct["address"] = data_addr
-            struct |= {"data": int(statement[1], 32)}
+            struct |= {"data": int(statement[1], 16)}
             data_addr += 1
             code.append(struct)
             continue
@@ -255,5 +255,5 @@ def main(file):
 
 
 if __name__ == '__main__':
-    filename = "examples/prob2.asm"
+    filename = "examples/echo.asm"
     main(filename)
