@@ -265,7 +265,6 @@ class ControlUnit:
                 self.step += 2
             self.trace()
             #   execution step:
-            # TODO CHECK SUB TICKS
             self.data_path.ALU.put_values(left_op, right_op)
             self.data_path.ALU.inc()
             self.data_path.ALU.reverse_right()
@@ -280,6 +279,7 @@ class ControlUnit:
             self.trace()
 
         if self.IR is Opcode.MUL:
+            instr = instr["op"]
             op_type = instr["type"]
             value = instr["value"]
             op = 0
@@ -305,7 +305,7 @@ class ControlUnit:
             self.data_path.ALU.mul(True)
             self.tick += 1
             self.trace()
-            self.save_value(self.data_path.ACC, self.data_path.ALU.res)
+            self.data_path.ACC = self.data_path.ALU.res
             self.trace()
 
             self.PC += 1
@@ -313,6 +313,7 @@ class ControlUnit:
             self.trace()
 
         if self.IR is Opcode.DIV:
+            instr = instr["op"]
             op_type = instr["type"]
             value = instr["value"]
             op = 0
@@ -336,9 +337,8 @@ class ControlUnit:
             #   execution step:
             self.data_path.ALU.put_values(self.data_path.ACC, op)
             self.data_path.ALU.div(True)
+            self.data_path.ACC = self.data_path.ALU.res
             self.tick += 1
-            self.trace()
-            self.save_value(self.data_path.ACC, self.data_path.ALU.res)
             self.trace()
 
             self.PC += 1
@@ -346,6 +346,7 @@ class ControlUnit:
             self.trace()
 
         if self.IR is Opcode.MOD:
+            instr = instr["op"]
             op_type = instr["type"]
             value = instr["value"]
             op = 0
@@ -369,14 +370,26 @@ class ControlUnit:
             #   execution step:
             self.data_path.ALU.put_values(self.data_path.ACC, op)
             self.data_path.ALU.mod(True)
+            self.data_path.ACC = self.data_path.ALU.res
             self.tick += 1
-            self.trace()
-            self.save_value(self.data_path.ACC, self.data_path.ALU.res)
             self.trace()
 
             self.PC += 1
             self.tick += 1
             self.trace()
+
+        if self.IR is Opcode.PUSH:
+            pass
+        if self.IR is Opcode.POP:
+            pass
+        if self.IR is Opcode.CALL:
+            pass
+        if self.IR is Opcode.RET:
+            pass
+        if self.IR is Opcode.JMP:
+            pass
+        if self.IR is Opcode.JL:
+            pass
 
     def address_fetch(self, address, offset, scale):
         res = 0
