@@ -1,3 +1,5 @@
+import argparse
+
 from isa import Opcode, Operand, Term, write_code
 
 DATA_MEM_MAX_SIZE = 0xFFFF
@@ -62,6 +64,7 @@ def decode_instr(command, operand):
         command |= {"opcode": operand.cmd, "operands": command_args}
 
 
+# TODO вытащить парсинг в отдельные функции
 def translate(program):
     lines = program.readlines()
     statements = []
@@ -74,6 +77,7 @@ def translate(program):
     labels = []
     address = 0
     data_addr = 0
+    LoC = 0
     for line, statement in enumerate(statements, 1):
         struct = {"opcode": None, "address": None}
         if statement[0] in data_mem_instr:
@@ -234,6 +238,8 @@ def translate(program):
             struct["dest"] = op1
         address += 1
         code.append(struct)
+        LoC = line
+    cnt_instr = 0
     for c in code:
         opcode = c['opcode']
         if opcode is Opcode.JMP or opcode is Opcode.JN or opcode is Opcode.CALL or opcode is Opcode.JZ:
@@ -243,17 +249,21 @@ def translate(program):
             for label in labels:
                 if arg == label["label"]:
                     c['op'] = label['addr']
-        print(c)
-    return code
+        if opcode is not Opcode.DB:
+            cnt_instr += 1
+    return code, cnt_instr, LoC
 
 
-def main(file):
-    target = "build/output.txt"
+def main(file, target):
     with open(file, 'r') as program:
-        code = translate(program)
+        code, instr, line = translate(program)
+    print("source LoC:", line, " code instr: ", instr)
     write_code(target, code)
 
 
 if __name__ == '__main__':
-    filename = "examples/instr.asm"
-    main(filename)
+    parser = argparse.ArgumentParser(description='Videos to images')
+    parser.add_argument('asm', type=str, help='asm instructions')
+    parser.add_argument('res', type=str, help='translation result')
+    args = parser.parse_args()
+    main(file=args.asm, target=args.res)

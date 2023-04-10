@@ -16,18 +16,19 @@ compare:
     jmp end
 test_odd:
     ld r7 4
-    mov acc br
-    div r7 br
+    ld acc 1
+    mov br acc
+    mod r7
     test dr
     jz sum
     jmp loop
 sum:
     ld br 3
+    ld acc 1
     add br acc
     sv br 3
     jmp loop
 end:
     ld acc 3
     halt
-
 

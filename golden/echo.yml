@@ -1,0 +1,182 @@
+source: |-
+  ./tests/echo.asm
+input: |-
+  1
+  2
+code: |-
+  [
+      {
+          "opcode": "ld",
+          "address": 0,
+          "dest": {
+              "type": "reg",
+              "value": "r7"
+          },
+          "source": {
+              "type": "const",
+              "value": "4294967295"
+          }
+      },
+      {
+          "opcode": "sv",
+          "address": 1,
+          "dest": {
+              "type": "reg",
+              "value": "r7"
+          },
+          "source": {
+              "type": "const",
+              "value": "4294967294"
+          }
+      },
+      {
+          "opcode": "ld",
+          "address": 2,
+          "dest": {
+              "type": "reg",
+              "value": "br"
+          },
+          "source": {
+              "type": "const",
+              "value": "4294967295"
+          }
+      },
+      {
+          "opcode": "sv",
+          "address": 3,
+          "dest": {
+              "type": "reg",
+              "value": "br"
+          },
+          "source": {
+              "type": "const",
+              "value": "4294967294"
+          }
+      },
+      {
+          "opcode": "halt",
+          "address": 4
+      }
+  ]
+output: |
+  source LoC: 5  code instr:  5
+  ============================================================
+  [2, 1]
+  total instr:  5 total ticks:  20
+log:  |
+  DEBUG    root:machine.py:110 {STEP: Step.INSTR_FETCH, TICK: 1}
+  {PC: 0, IR: 0, SP: 4294967293, BR: 0, R7: 0, ACC: 0 }
+  {MDR: 0 }
+  {CR: {'opcode': <Opcode.LD: 'ld'>, 'address': 0, 'dest': {'type': 'reg', 'value': 'r7'}, 'source': {'type': 'const', 'value': '4294967295'}}}
+  {ALU: {<Flag.NF: 'NF'>: False, <Flag.CF: 'CF'>: False, <Flag.ZF: 'ZF'>: False, <Flag.OF: 'OF'>: False} }
+  DEBUG    root:machine.py:110 {STEP: Step.INSTR_FETCH, TICK: 2}
+  {PC: 0, IR: Opcode.LD, SP: 4294967293, BR: 0, R7: 0, ACC: 0 }
+  {MDR: 0 }
+  {CR: {'opcode': <Opcode.LD: 'ld'>, 'address': 0, 'dest': {'type': 'reg', 'value': 'r7'}, 'source': {'type': 'const', 'value': '4294967295'}}}
+  {ALU: {<Flag.NF: 'NF'>: False, <Flag.CF: 'CF'>: False, <Flag.ZF: 'ZF'>: False, <Flag.OF: 'OF'>: False} }
+  DEBUG    root:machine.py:110 {STEP: Step.INSTR_FETCH, TICK: 3}
+  {PC: 1, IR: Opcode.LD, SP: 4294967293, BR: 0, R7: 0, ACC: 0 }
+  {MDR: 0 }
+  {CR: {'opcode': <Opcode.LD: 'ld'>, 'address': 0, 'dest': {'type': 'reg', 'value': 'r7'}, 'source': {'type': 'const', 'value': '4294967295'}}}
+  {ALU: {<Flag.NF: 'NF'>: False, <Flag.CF: 'CF'>: False, <Flag.ZF: 'ZF'>: False, <Flag.OF: 'OF'>: False} }
+  DEBUG    root:machine.py:65 read from IO: 2
+  DEBUG    root:machine.py:110 {STEP: Step.OPERAND_FETCH, TICK: 4}
+  {PC: 1, IR: Opcode.LD, SP: 4294967293, BR: 0, R7: 0, ACC: 0 }
+  {MDR: 2 }
+  {CR: {'opcode': <Opcode.LD: 'ld'>, 'address': 0, 'dest': {'type': 'reg', 'value': 'r7'}, 'source': {'type': 'const', 'value': '4294967295'}}}
+  {ALU: {<Flag.NF: 'NF'>: False, <Flag.CF: 'CF'>: False, <Flag.ZF: 'ZF'>: False, <Flag.OF: 'OF'>: False} }
+  DEBUG    root:machine.py:110 {STEP: Step.OPERAND_FETCH, TICK: 5}
+  {PC: 1, IR: Opcode.LD, SP: 4294967293, BR: 0, R7: 2, ACC: 0 }
+  {MDR: 2 }
+  {CR: {'opcode': <Opcode.LD: 'ld'>, 'address': 0, 'dest': {'type': 'reg', 'value': 'r7'}, 'source': {'type': 'const', 'value': '4294967295'}}}
+  {ALU: {<Flag.NF: 'NF'>: False, <Flag.CF: 'CF'>: False, <Flag.ZF: 'ZF'>: False, <Flag.OF: 'OF'>: False} }
+  DEBUG    root:machine.py:110 {STEP: Step.INSTR_FETCH, TICK: 1}
+  {PC: 1, IR: Opcode.LD, SP: 4294967293, BR: 0, R7: 2, ACC: 0 }
+  {MDR: 2 }
+  {CR: {'opcode': <Opcode.SV: 'sv'>, 'address': 1, 'dest': {'type': 'reg', 'value': 'r7'}, 'source': {'type': 'const', 'value': '4294967294'}}}
+  {ALU: {<Flag.NF: 'NF'>: False, <Flag.CF: 'CF'>: False, <Flag.ZF: 'ZF'>: False, <Flag.OF: 'OF'>: False} }
+  DEBUG    root:machine.py:110 {STEP: Step.INSTR_FETCH, TICK: 2}
+  {PC: 1, IR: Opcode.SV, SP: 4294967293, BR: 0, R7: 2, ACC: 0 }
+  {MDR: 2 }
+  {CR: {'opcode': <Opcode.SV: 'sv'>, 'address': 1, 'dest': {'type': 'reg', 'value': 'r7'}, 'source': {'type': 'const', 'value': '4294967294'}}}
+  {ALU: {<Flag.NF: 'NF'>: False, <Flag.CF: 'CF'>: False, <Flag.ZF: 'ZF'>: False, <Flag.OF: 'OF'>: False} }
+  DEBUG    root:machine.py:110 {STEP: Step.INSTR_FETCH, TICK: 3}
+  {PC: 2, IR: Opcode.SV, SP: 4294967293, BR: 0, R7: 2, ACC: 0 }
+  {MDR: 2 }
+  {CR: {'opcode': <Opcode.SV: 'sv'>, 'address': 1, 'dest': {'type': 'reg', 'value': 'r7'}, 'source': {'type': 'const', 'value': '4294967294'}}}
+  {ALU: {<Flag.NF: 'NF'>: False, <Flag.CF: 'CF'>: False, <Flag.ZF: 'ZF'>: False, <Flag.OF: 'OF'>: False} }
+  DEBUG    root:machine.py:110 {STEP: Step.OPERAND_FETCH, TICK: 4}
+  {PC: 2, IR: Opcode.SV, SP: 4294967293, BR: 0, R7: 2, ACC: 0 }
+  {MDR: 2 }
+  {CR: {'opcode': <Opcode.SV: 'sv'>, 'address': 1, 'dest': {'type': 'reg', 'value': 'r7'}, 'source': {'type': 'const', 'value': '4294967294'}}}
+  {ALU: {<Flag.NF: 'NF'>: False, <Flag.CF: 'CF'>: False, <Flag.ZF: 'ZF'>: False, <Flag.OF: 'OF'>: False} }
+  DEBUG    root:machine.py:59 write to IO:  2
+  DEBUG    root:machine.py:110 {STEP: Step.OPERAND_FETCH, TICK: 5}
+  {PC: 2, IR: Opcode.SV, SP: 4294967293, BR: 0, R7: 2, ACC: 0 }
+  {MDR: 2 }
+  {CR: {'opcode': <Opcode.SV: 'sv'>, 'address': 1, 'dest': {'type': 'reg', 'value': 'r7'}, 'source': {'type': 'const', 'value': '4294967294'}}}
+  {ALU: {<Flag.NF: 'NF'>: False, <Flag.CF: 'CF'>: False, <Flag.ZF: 'ZF'>: False, <Flag.OF: 'OF'>: False} }
+  DEBUG    root:machine.py:110 {STEP: Step.INSTR_FETCH, TICK: 1}
+  {PC: 2, IR: Opcode.SV, SP: 4294967293, BR: 0, R7: 2, ACC: 0 }
+  {MDR: 2 }
+  {CR: {'opcode': <Opcode.LD: 'ld'>, 'address': 2, 'dest': {'type': 'reg', 'value': 'br'}, 'source': {'type': 'const', 'value': '4294967295'}}}
+  {ALU: {<Flag.NF: 'NF'>: False, <Flag.CF: 'CF'>: False, <Flag.ZF: 'ZF'>: False, <Flag.OF: 'OF'>: False} }
+  DEBUG    root:machine.py:110 {STEP: Step.INSTR_FETCH, TICK: 2}
+  {PC: 2, IR: Opcode.LD, SP: 4294967293, BR: 0, R7: 2, ACC: 0 }
+  {MDR: 2 }
+  {CR: {'opcode': <Opcode.LD: 'ld'>, 'address': 2, 'dest': {'type': 'reg', 'value': 'br'}, 'source': {'type': 'const', 'value': '4294967295'}}}
+  {ALU: {<Flag.NF: 'NF'>: False, <Flag.CF: 'CF'>: False, <Flag.ZF: 'ZF'>: False, <Flag.OF: 'OF'>: False} }
+  DEBUG    root:machine.py:110 {STEP: Step.INSTR_FETCH, TICK: 3}
+  {PC: 3, IR: Opcode.LD, SP: 4294967293, BR: 0, R7: 2, ACC: 0 }
+  {MDR: 2 }
+  {CR: {'opcode': <Opcode.LD: 'ld'>, 'address': 2, 'dest': {'type': 'reg', 'value': 'br'}, 'source': {'type': 'const', 'value': '4294967295'}}}
+  {ALU: {<Flag.NF: 'NF'>: False, <Flag.CF: 'CF'>: False, <Flag.ZF: 'ZF'>: False, <Flag.OF: 'OF'>: False} }
+  DEBUG    root:machine.py:65 read from IO: 1
+  DEBUG    root:machine.py:110 {STEP: Step.OPERAND_FETCH, TICK: 4}
+  {PC: 3, IR: Opcode.LD, SP: 4294967293, BR: 0, R7: 2, ACC: 0 }
+  {MDR: 1 }
+  {CR: {'opcode': <Opcode.LD: 'ld'>, 'address': 2, 'dest': {'type': 'reg', 'value': 'br'}, 'source': {'type': 'const', 'value': '4294967295'}}}
+  {ALU: {<Flag.NF: 'NF'>: False, <Flag.CF: 'CF'>: False, <Flag.ZF: 'ZF'>: False, <Flag.OF: 'OF'>: False} }
+  DEBUG    root:machine.py:110 {STEP: Step.OPERAND_FETCH, TICK: 5}
+  {PC: 3, IR: Opcode.LD, SP: 4294967293, BR: 1, R7: 2, ACC: 0 }
+  {MDR: 1 }
+  {CR: {'opcode': <Opcode.LD: 'ld'>, 'address': 2, 'dest': {'type': 'reg', 'value': 'br'}, 'source': {'type': 'const', 'value': '4294967295'}}}
+  {ALU: {<Flag.NF: 'NF'>: False, <Flag.CF: 'CF'>: False, <Flag.ZF: 'ZF'>: False, <Flag.OF: 'OF'>: False} }
+  DEBUG    root:machine.py:110 {STEP: Step.INSTR_FETCH, TICK: 1}
+  {PC: 3, IR: Opcode.LD, SP: 4294967293, BR: 1, R7: 2, ACC: 0 }
+  {MDR: 1 }
+  {CR: {'opcode': <Opcode.SV: 'sv'>, 'address': 3, 'dest': {'type': 'reg', 'value': 'br'}, 'source': {'type': 'const', 'value': '4294967294'}}}
+  {ALU: {<Flag.NF: 'NF'>: False, <Flag.CF: 'CF'>: False, <Flag.ZF: 'ZF'>: False, <Flag.OF: 'OF'>: False} }
+  DEBUG    root:machine.py:110 {STEP: Step.INSTR_FETCH, TICK: 2}
+  {PC: 3, IR: Opcode.SV, SP: 4294967293, BR: 1, R7: 2, ACC: 0 }
+  {MDR: 1 }
+  {CR: {'opcode': <Opcode.SV: 'sv'>, 'address': 3, 'dest': {'type': 'reg', 'value': 'br'}, 'source': {'type': 'const', 'value': '4294967294'}}}
+  {ALU: {<Flag.NF: 'NF'>: False, <Flag.CF: 'CF'>: False, <Flag.ZF: 'ZF'>: False, <Flag.OF: 'OF'>: False} }
+  DEBUG    root:machine.py:110 {STEP: Step.INSTR_FETCH, TICK: 3}
+  {PC: 4, IR: Opcode.SV, SP: 4294967293, BR: 1, R7: 2, ACC: 0 }
+  {MDR: 1 }
+  {CR: {'opcode': <Opcode.SV: 'sv'>, 'address': 3, 'dest': {'type': 'reg', 'value': 'br'}, 'source': {'type': 'const', 'value': '4294967294'}}}
+  {ALU: {<Flag.NF: 'NF'>: False, <Flag.CF: 'CF'>: False, <Flag.ZF: 'ZF'>: False, <Flag.OF: 'OF'>: False} }
+  DEBUG    root:machine.py:110 {STEP: Step.OPERAND_FETCH, TICK: 4}
+  {PC: 4, IR: Opcode.SV, SP: 4294967293, BR: 1, R7: 2, ACC: 0 }
+  {MDR: 1 }
+  {CR: {'opcode': <Opcode.SV: 'sv'>, 'address': 3, 'dest': {'type': 'reg', 'value': 'br'}, 'source': {'type': 'const', 'value': '4294967294'}}}
+  {ALU: {<Flag.NF: 'NF'>: False, <Flag.CF: 'CF'>: False, <Flag.ZF: 'ZF'>: False, <Flag.OF: 'OF'>: False} }
+  DEBUG    root:machine.py:59 write to IO:  1
+  DEBUG    root:machine.py:110 {STEP: Step.OPERAND_FETCH, TICK: 5}
+  {PC: 4, IR: Opcode.SV, SP: 4294967293, BR: 1, R7: 2, ACC: 0 }
+  {MDR: 1 }
+  {CR: {'opcode': <Opcode.SV: 'sv'>, 'address': 3, 'dest': {'type': 'reg', 'value': 'br'}, 'source': {'type': 'const', 'value': '4294967294'}}}
+  {ALU: {<Flag.NF: 'NF'>: False, <Flag.CF: 'CF'>: False, <Flag.ZF: 'ZF'>: False, <Flag.OF: 'OF'>: False} }
+  DEBUG    root:machine.py:110 {STEP: Step.INSTR_FETCH, TICK: 1}
+  {PC: 4, IR: Opcode.SV, SP: 4294967293, BR: 1, R7: 2, ACC: 0 }
+  {MDR: 1 }
+  {CR: {'opcode': <Opcode.HALT: 'halt'>, 'address': 4}}
+  {ALU: {<Flag.NF: 'NF'>: False, <Flag.CF: 'CF'>: False, <Flag.ZF: 'ZF'>: False, <Flag.OF: 'OF'>: False} }
+  DEBUG    root:machine.py:110 {STEP: Step.INSTR_FETCH, TICK: 2}
+  {PC: 4, IR: Opcode.HALT, SP: 4294967293, BR: 1, R7: 2, ACC: 0 }
+  {MDR: 1 }
+  {CR: {'opcode': <Opcode.HALT: 'halt'>, 'address': 4}}
+  {ALU: {<Flag.NF: 'NF'>: False, <Flag.CF: 'CF'>: False, <Flag.ZF: 'ZF'>: False, <Flag.OF: 'OF'>: False} }
+  INFO     root:machine.py:481 output_buffer: [2, 1]
+  
